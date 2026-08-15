@@ -287,7 +287,8 @@ turns one config into theme overrides, and it extends the **Settings** surface
 in three ways:
 
 - **Adds to General settings** — new rows under Settings → General for the
-  floating history strip (position / count) and user-message Markdown rendering;
+  floating history strip (position / count) and user-message Markdown rendering,
+  plus a special usability tweak for the strip (a chosen turn can be "hung" on it);
 - **Adds to Plugin settings** — a new "Plugin Marketplace" tab under Settings → Plugins;
 - **Adds three new settings pages** — Appearance, Shortcuts, and Usage statistics.
 
@@ -298,31 +299,36 @@ byte-for-byte stock, and no shell source is ever modified.
 
 | Where | Kind | What |
 | --- | --- | --- |
-| Settings → Appearance | new page | theming: wallpaper, glass, accent, surface opacity, fonts & texture |
-| Settings → Shortcuts | new page | keybinding recorder: new conversation, model switch, thinking effort, direct model jumps |
-| Settings → App Usage | new page | usage stats: four windows, trend chart, top sessions |
-| Settings → General | added rows | floating history strip (position / count), user-message Markdown toggle |
+| Settings → Appearance | new page | custom theming: wallpaper, glass, accent, surface opacity, fonts & texture |
+| Settings → Shortcuts | new page | custom keybindings: new conversation, model switch, thinking effort, direct model jumps, etc. |
+| Settings → App Usage | new page | usage stats: aggregated over four windows, with a trend chart and session ranking |
+| Settings → General | added rows | floating history strip (adjustable position / count), user-message Markdown toggle |
 | Settings → Plugins | added tab | "Plugin Marketplace": third-party plugin catalog |
 
-Each area is described in its own section below.
+![Settings at a glance](https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/settings-new.png)
 
 ---
 
 ### Appearance (Settings → Appearance)
 
-A new settings page with the full theming form: wallpaper, glass level, accent
+A new settings page with a full theming space: wallpaper, glass level, accent
 color (auto-extracted from the wallpaper), per-surface opacities, tone gradient,
 dark scrim, fonts & scale, accent scrollbar and vignette — plus the merged
 **theme preference** (light / dark / system) that ui-theme contributes into
 this section. Changes save through the `ui-custom` settings namespace and
-**apply immediately** (the theme re-renders live, no restart); the form lets you
-**preview before saving** (Esc exits preview), and Reset reverts every field to
-the loader config. You can also apply a named look with `preset: '<id>'`, or
-"save as my preset" the current setup.
+**apply immediately** (the theme re-renders live, no restart).
 
-**Presets** — each preset is a complete art direction carried by its own
-gradient (no shipped wallpapers — a preset works on its own, and your
-`wallpaper` still layers under it):
+**Preview** — the theme supports a mini-window preview.
+
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-mini.png" width="720" alt="Mini preview">
+
+It also supports fullscreen preview — press F2 to exit.
+
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-fullscreen.png" width="900" alt="Fullscreen preview">
+
+**Presets** — the plugin ships six built-in presets, each with its own distinct
+style (a preset works standalone, and your own `wallpaper` still layers under
+it):
 
 | id | name | look |
 | --- | --- | --- |
@@ -370,7 +376,7 @@ over the preset:
 | `customCss` | string | `''` | Raw CSS appended verbatim (escape hatch) |
 | `customVars` | object | `{}` | Extra CSS custom properties written on `<html>` (escape hatch) |
 
-Full example with overrides and escape hatches:
+Full example:
 
 ```yaml
 config:
@@ -389,11 +395,10 @@ config:
 
 ### Shortcuts (Settings → Shortcuts)
 
-A new settings page with user-recordable keybindings. Each binding is a
-click-to-record field (press the combination, Esc cancels), with Save / Reset
-per section; values live in the `ui-custom` settings namespace and runtime
-changes apply immediately without a restart (the loader config acts as the
-composition base, so Reset reverts to the loader defaults).
+A new settings page with customizable keybindings. Values live in the
+`ui-custom` settings namespace, so runtime changes apply immediately without a
+restart (the loader config acts as the composition base, and Reset reverts to
+the loader defaults).
 
 Combos use `Mod+Alt+Shift+<key>` syntax: `Mod` matches **Ctrl or Meta**
 (platform-agnostic), `<key>` is a letter, digit, or named key (`space`, `enter`,
@@ -409,6 +414,10 @@ Combos use `Mod+Alt+Shift+<key>` syntax: `Mod` matches **Ctrl or Meta**
 | `usagePanel` | Pop the app-usage panel (unbound by default — opt in from Settings, e.g. `Mod+Alt+U`) |
 | `defaultWorkspace` | Workspace the new-conversation shortcut opens in ('' = current/recent) |
 | `modelShortcuts` | One-to-one model jumps: each combo goes straight to a specific model (combo / provider / model) |
+
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/shortcuts.png" width="720" alt="Shortcuts page">
+
+Example:
 
 ```yaml
 config:
@@ -468,6 +477,8 @@ on the conversation's right edge:
 messages render as Markdown (headings, lists, code blocks, `@subagent` /
 `@skill` references, …). Off = the stock plain-text look.
 
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/general-settings.png" width="720" alt="General settings">
+
 ---
 
 ### Plugin settings additions (Settings → Plugins → Plugin Marketplace)
@@ -487,6 +498,8 @@ intentionally **not** listed.
   pasting it into the watched profile patch file
   (`~/.dsh/profiles/web/cordis.patch.yml`) applies the plugin live, no restart;
 - Entries already in the Host inventory show an "Installed" badge.
+
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/marketplace.png" width="720" alt="Plugin marketplace">
 
 ---
 
