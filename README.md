@@ -10,65 +10,43 @@
 
 ## 中文
 
-面向**任意** dsh web profile 的可配置前端主题框架 —— 无需改动任何 shell 源码。
+### 简介
 
-插件是一个小型主题框架：运行时把一份配置转换成主题 token 覆盖。
+Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配置转换成主题
+覆盖，并围绕「设置」界面做了一系列扩展。在设置上，本插件：
 
-- **预设（Preset）** —— 选一个命名外观（`preset: 'ink-teal'`），或逐项手调
-- **壁纸** —— 任意 URL 或 Web 可访问路径（`/wall.jpg`、`https://…`）
-- **玻璃档位** —— 一键选择毛玻璃质感：`off` / `light` / `frosted` / `mica`
-- **自动取色** —— 从壁纸自动派生强调色（Material You 风格）
-- **强调色** —— 一个颜色驱动整套 deepseek 色阶（气泡、信息按钮、激活/悬停态、品牌色、滚动条）
-- **半透明表面** —— 主表面 / 侧栏 / 聊天列 / 输入框 / 代码块不透明度，暗色模式另有独立档位
-- **色调融合** —— 亮色模式下叠加在壁纸上的渐变
-- **暗色遮罩** —— 暗色模式下保证壁纸上方文字对比度
-- **逃生舱** —— 原生 `customCss` 与额外 `customVars`，覆盖一切其他需求
-- **快捷键** —— 可自定义键位：新建对话、切换模型、循环思考强度
-- 字体覆盖、主题色滚动条、内嵌晕影
+- **修改了通用设置项** —— 在「设置 → 通用」里新增了浮动历史条（位置、数量）和用户消息 Markdown 渲染两个开关；
+- **修改了插件项** —— 在「设置 → 插件」里新增了「插件市场」tab；
+- **新增了三个设置页** —— 「外观」「快捷键」「用量统计」。
 
-所有规则都在插件自己的样式表里，并以 `html[data-dsu-active]` 为开关：
-未配置 `wallpaper` 时插件完全无操作，profile 保持原样。
+所有功能默认中性关闭：不配置时界面与原生完全一致，全程零 shell 改动。
 
-### 框架结构
+### 设置改动一览
 
-```
-packages/client/ui-custom/
-├── src/client/
-│   ├── index.ts          # 插件入口：解析预设 → 规范化 → 应用
-│   ├── config.ts         # CustomThemeConfig、DEFAULTS、normalizeConfig（类型收窄+钳制）
-│   ├── presets.ts        # ThemePreset 注册表 —— 美术选择的扩展面
-│   ├── apply.ts          # config → DOM：--dsu-* 变量、customCss、customVars
-│   └── custom.module.css # 消费 --dsu-* 变量的 token 覆盖
-├── tests/                # 配置管线单元测试
-└── README.md             # 本文档（中文 / English 双语）
-```
+| 位置 | 类型 | 内容 |
+| --- | --- | --- |
+| 设置 → 外观 | 新增页面 | 主题定制：壁纸、玻璃、强调色、表面不透明度、字体与质感 |
+| 设置 → 快捷键 | 新增页面 | 键位录制：新建对话、切换模型、思考强度、模型直达等 |
+| 设置 → 应用用量 | 新增页面 | 用量统计：四窗口聚合、趋势图、会话排行 |
+| 设置 → 通用 | 修改原有页 | 新增浮动历史条（位置 / 数量）、用户消息 Markdown 渲染开关 |
+| 设置 → 插件 | 修改原有页 | 新增「插件市场」tab：第三方插件目录 |
 
-后续新增美术选择 = 在 `presets.ts` 加一条 `ThemePreset`（若是全新旋钮，
-再在 `config.ts` 加字段、`apply.ts` 与 `custom.module.css` 各加一行）。
+下面分段逐一说明。
 
-### 安装
+---
 
-1. 确保构建会包含该包（`pnpm run build:lib:client`）。
-2. 在 Web profile 的补丁层加入浏览器 roster 行 ——
-   `~/.dsh/profiles/web/cordis.patch.yml`（或你 profile 中对应的 `dsh.client` roster）：
+### 外观（设置 → 外观）
 
-```yaml
-- id: ui-custom
-  name: '@deepseek-ai/dsh-client-ui-custom'
-  config:
-    preset: 'ink-teal'        # 选择预设；下面任意字段会覆盖它
-    wallpaper: '/my-wall.jpg'
-    wallpaperBlur: 14
-```
+新增的设置页，提供完整的主题定制表单：壁纸、玻璃档位、强调色（可自动从
+壁纸取色）、各表面不透明度、色调渐变、暗色遮罩、字体与字号、主题色滚动条
+与内嵌晕影，并把 ui-theme 的**主题偏好**（浅色 / 深色 / 跟随系统）合并进本
+栏。改动通过 `ui-custom` settings 命名空间保存并**即时生效**（主题实时重渲染，
+无需重启）；表单支持先**预览**再保存（Esc 退出预览），「恢复默认」回到
+loader 配置。也可以用 `preset: '<id>'` 一键套用命名外观，或把当前设置
+「另存为我的预设」。
 
-3. 重启 `dsh web`（profile 级改动在启动时读取），然后强制刷新页面。
-
-插件默认**完全中性、功能默认关闭**：未配置 `wallpaper` 时不做任何改动，
-所有可选功能（Markdown 渲染、用量面板快捷键、浮动历史条、GitHub 自动发现）
-默认关闭，需要时在设置里开启。想恢复默认主题：删除该行，或把 `wallpaper`
-设为 `''`。
-
-### 预设
+**预设（Preset）** —— 每个预设都是完整的美术方向，由自身的渐变承载（不附带
+壁纸——预设可独立生效，你自己的 `wallpaper` 仍会叠加在它之下）：
 
 | id | 名称 | 风格 |
 | --- | --- | --- |
@@ -79,13 +57,10 @@ packages/client/ui-custom/
 | `mist-gray` | Mist Gray 雾灰 | 雾灰色渐变，清冷安静的灰蓝 |
 | `ink-violet` | Ink Violet 墨紫 | 墨紫色渐变，沉静神秘 |
 
-每个预设都是完整的美术方向，由自身的渐变承载（不附带壁纸——预设可独立
-生效，你自己的 `wallpaper` 仍会叠加在它之下）。更多美术选择后续会扩展进
-这份列表 —— 见 `src/client/presets.ts`。
+更多美术选择后续会扩展进这份列表 —— 见 `src/client/presets.ts`。
 
-### 玻璃档位
-
-`glass` 是"通透程度"的高层开关；显式设置 `wallpaperBlur` 时总是优先于档位的默认半径。
+**玻璃档位** —— `glass` 是"通透程度"的高层开关；显式设置 `wallpaperBlur`
+时总是优先于档位的默认半径：
 
 | 档位 | 模糊 | 饱和度 | 气质 |
 | --- | --- | --- | --- |
@@ -94,9 +69,7 @@ packages/client/ui-custom/
 | `frosted` | 14px | 1.25 | 强毛玻璃（默认） |
 | `mica` | 22px | 1.1 | 柔和静态质感，保留壁纸色相 |
 
-### 配置项
-
-所有字段均可选；显式配置永远优先于预设。
+**主题配置项** —— 所有字段均可选；显式配置永远优先于预设：
 
 | 键 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
@@ -119,13 +92,33 @@ packages/client/ui-custom/
 | `vignette` | boolean | `false` | 应用根节点的柔和内嵌晕影 |
 | `customCss` | string | `''` | 原样追加的自定义 CSS（逃生舱） |
 | `customVars` | object | `{}` | 额外写到 `<html>` 上的 CSS 自定义属性（逃生舱） |
-| `shortcuts` | object | 默认未绑定，仅 `sendMessage: 'Enter'`、`newline: 'Shift+Enter'` | 快捷键绑定 —— 见下方「快捷键」 |
 
-### 快捷键
+带覆盖与逃生舱的完整示例：
 
-三个动作可绑定任意组合键（空/缺省 = 关闭）。语法为 `Mod+Alt+Shift+<键>`：
-`Mod` 匹配 **Ctrl 或 Meta**（跨平台），`<键>` 是字母、数字或具名键
-（`space`、`enter`、`f5`、`arrowup` 等）。
+```yaml
+config:
+  preset: 'ink-teal'
+  wallpaper: 'https://example.com/wall.jpg'
+  glass: 'mica'              # 或 wallpaperBlur: 8 自定义半径
+  autoAccent: true           # 强调色由壁纸自动派生
+  chatSurfaceOpacity: 70
+  customCss: |
+    .some-hashed-class { border-radius: 16px; }
+  customVars:
+    '--my-accent-soft': 'rgb(255 127 178 / 0.3)'
+```
+
+---
+
+### 快捷键（设置 → 快捷键）
+
+新增的设置页，提供可自定义的键位绑定。每项绑定是"点击后录制"字段（按下
+组合键即可，Esc 取消），整页保存 / 恢复默认；值存在 `ui-custom` settings
+命名空间里，运行时的修改无需重启即可生效（loader 配置作为组合层 base，
+「恢复默认」会回到 loader 默认值）。
+
+语法为 `Mod+Alt+Shift+<键>`：`Mod` 匹配 **Ctrl 或 Meta**（跨平台），`<键>`
+是字母、数字或具名键（`space`、`enter`、`f5`、`arrowup` 等）。空/缺省 = 关闭。
 
 | 动作 | 作用 |
 | --- | --- |
@@ -135,6 +128,8 @@ packages/client/ui-custom/
 | `sendMessage` | 输入框发送手势（默认 `Enter`） |
 | `newline` | 输入框换行手势（默认 `Shift+Enter`） |
 | `usagePanel` | 呼出应用用量面板（默认未绑定，可在设置中开启，如 `Mod+Alt+U`） |
+| `defaultWorkspace` | `newConversation` 打开的目标工作区（空 = 当前/最近） |
+| `modelShortcuts` | 一对一模型直达：每个组合键跳到指定模型（combo / provider / model） |
 
 ```yaml
 config:
@@ -158,78 +153,94 @@ config:
 RPC，输入区的模型显示会自动同步；被寻址的子代理会话会被跳过（与 UI 一致）。
 不带 `Mod` 的组合键在输入框聚焦时不会触发，避免劫持正常打字。
 
-#### 设置页
+---
 
-插件会在设置里注册独立的 **「快捷键」** 页面（设置 → 快捷键）。每项绑定是
-一个"点击后录制"字段（按下组合键即可，Esc 取消），整页保存/恢复默认。值存
-在插件的 settings 命名空间（`ui-custom`）里：上面的 loader 配置作为组合层
-base，因此"恢复默认"会回到 loader 默认值，运行时的修改无需重启即可生效。
+### 用量统计（设置 → 应用用量）
 
-自行构建者注意：设置页要能加载，`ui-custom` 命名空间必须在 Web 客户端的
-设置暴露白名单里（`packages/host/apiproxy/src/api-proxy.ts` 的
-`WEB_SETTINGS_NAMESPACES`）——本检出已加入。
+新增的设置页：聚合各会话的用量投影（token-meter + session-stats），按四个
+时间窗口（近一年 / 近一月 / 近一周 / 近三天）展示 **总 / 输入 / 输出 Token、
+缓存命中（含命中率）、使用时长、会话数与步数**，并带用量趋势图与会话排行。
+纯客户端实现：会话列表行已携带 Host 计算好的投影基线，无需额外 RPC。
 
-#### 外观设置（设置 → 外观）
+面板可通过快捷键在任何界面呼出（默认未绑定，在「快捷键」页里把
+`usagePanel` 设为如 `Mod+Alt+U`）。
 
-设置里新增独立的 **「外观」** 页面：壁纸、玻璃档位、强调色（含壁纸自动取色）、
-各表面不透明度、色调渐变、暗色遮罩、字体、主题色滚动条与晕影的完整定制表单，
-并把 ui-theme 的**主题偏好**（浅色 / 深色 / 跟随系统）合并进本栏。改动通过
-`ui-custom` settings 命名空间保存并**即时生效**（主题实时重渲染，无需重启）；
-loader 配置作为组合层 base，「恢复默认」会回到 loader 值。
+---
 
-说明：随附一个小的 ui-theme 集成补丁，把产品外观行从「通用」移到「外观」栏
-（`packages/client/ui-theme/src/client/index.ts` 改挂 `settings.appearance.item`）；
-未安装本插件时该行不挂载。
+### 通用设置项的改动
 
-#### 插件市场（设置 → 插件 → 插件市场）
+在「设置 → 通用」里新增了三行设置：
 
-设置 → 插件的第三个 tab **「插件市场」**（与插件配置、插件列表并列）：**第三方**
-DSH 插件目录，每项带一句话简介与 GitHub 源码跳转链接。DSH 内置包已在 roster 中，
-**故意不列出**。目录从 GitHub raw 清单拉取——在插件配置里设置 `marketplaceUrl`
-指向你发布的 `marketplace.json`（本包自带一份示例）即可从 GitHub 填充市场，
-拉取失败时保持空目录。点击**「安装」**会把 `- insert:` YAML 复制到剪贴板，
-粘贴进被实时监听的 profile 补丁文件（`~/.dsh/profiles/web/cordis.patch.yml`）
-即**无需重启**生效；已在宿主清单里的插件显示「已安装」徽标。
+**浮动历史条（位置 / 数量）** —— 对话右缘悬浮一条最近回合的导航条：
+- **位置**：`left` / `right` / `off`（默认 `off`，关闭时不显示）；
+- **数量**：显示最近多少回合（默认 10，`0` = 全部）；
+- 点条目平滑滚动到该消息；条目来自已挂载的会话快照，纯 DOM 跳转，无额外 RPC；
+- 支持**置顶**：在消息操作行（复制/分支之间）把某回合"悬挂"到历史条上，
+  置顶回合忽略数量限制、始终显示并带强调色边框（历史条关闭时按钮自动隐藏）。
 
-#### 应用用量
+**用户消息 Markdown 渲染** —— 默认关闭；开启后你自己的消息按 Markdown
+渲染（标题、列表、代码块、`@子代理` / `@技能` 引用等），关闭时与原生
+纯文本外观一致。
 
-设置里新增独立的 **「应用用量」** 页面（设置 → 应用用量），并可通过快捷键
-（默认未绑定，可设置为如 `Mod+Alt+U`）在任何界面呼出同一个面板。它按四个时间窗口
-（近一年 / 近一月 / 近一周 / 近三天）聚合各会话的用量投影（token-meter +
-session-stats）：总 / 输入 / 输出 Token、缓存命中（含命中率）、使用时长、
-会话数与步数、用量趋势图与会话排行。纯客户端实现：会话列表行已携带
-Host 计算好的投影基线，无需额外 RPC。
+---
 
-#### 对话大纲（右侧栏跳转）
+### 插件项的改动（设置 → 插件 → 插件市场）
 
-**右侧栏**变成当前对话的跳转地图：右侧边缘悬浮一颗「大纲」按钮点开面板，
-面板列出每一段对话（用户提问 + 紧随其后的回答预览）。点击某一段，聊天区
-平滑滚动到该消息并闪烁高亮标记。段落数据来自已挂载的会话快照，跳转是纯
-DOM 操作，无需额外 RPC。
+在「设置 → 插件」里新增第三个 tab **「插件市场」**（与插件配置、插件列表
+并列）：**第三方** DSH 插件目录，每项带一句话简介与 GitHub 源码跳转链接。
+DSH 内置包已在 roster 中，**故意不列出**。
+
+- 目录来源：`marketplaceUrl` 配置（GitHub raw 清单 URL 和/或 GitHub 仓库
+  URL，可多个），拉取失败时保持空目录；本包自带一份 `marketplace.json` 示例；
+- 可选 **GitHub 自动发现**：搜索 `dsh-plugin` topic 仓库并按 stars / 发布日期
+  排序合并进目录（`discoverGitHub` / `discoverSort` / `discoverLimit`）；
+- **安装**：点击把精确的 `- insert:` YAML 复制到剪贴板，粘贴进被实时监听的
+  profile 补丁文件（`~/.dsh/profiles/web/cordis.patch.yml`）即**无需重启**生效；
+- 已在宿主清单里的插件显示「已安装」徽标。
+
+---
+
+### 其他界面功能
+
+**对话大纲（右侧栏跳转）** —— 右侧栏变成当前对话的跳转地图：右侧边缘悬浮
+一颗「大纲」按钮点开面板，面板列出每一段对话（用户提问 + 紧随其后的回答
+预览）。点击某一段，聊天区平滑滚动到该消息并闪烁高亮标记。段落数据来自
+已挂载的会话快照，跳转是纯 DOM 操作，无需额外 RPC。
 
 实现说明：stock 的详情列是 `single` 槽，其内置面板没有入口（列从不打开），
 因此插件用 `priority: -1`（最低优先级胜出）**shadow** 掉它，换成大纲面板。
 随之消失的工具详情子席位，ui-tool 是通过 `inject` 延迟注册的，不会抛错；
 不装本插件的原生环境完全不受影响。
 
-带覆盖与逃生舱的示例：
+---
+
+### 安装
+
+1. 确保构建会包含该包（`pnpm run build:lib:client`）。
+2. 在 Web profile 的补丁层加入浏览器 roster 行 ——
+   `~/.dsh/profiles/web/cordis.patch.yml`（或你 profile 中对应的 `dsh.client` roster）：
 
 ```yaml
-config:
-  preset: 'ink-teal'
-  wallpaper: 'https://example.com/wall.jpg'
-  glass: 'mica'              # 或 wallpaperBlur: 8 自定义半径
-  autoAccent: true           # 强调色由壁纸自动派生
-  chatSurfaceOpacity: 70
-  customCss: |
-    .some-hashed-class { border-radius: 16px; }
-  customVars:
-    '--my-accent-soft': 'rgb(255 127 178 / 0.3)'
-  shortcuts:
-    newConversation: 'Mod+Alt+N'
-    switchModel: 'Mod+Alt+M'
-    cycleThinking: 'Mod+Alt+T'
+- id: ui-custom
+  name: '@deepseek-ai/dsh-client-ui-custom'
+  config:
+    preset: 'ink-teal'        # 选择预设；下面任意字段会覆盖它
+    wallpaper: '/my-wall.jpg'
+    wallpaperBlur: 14
 ```
+
+3. 重启 `dsh web`（profile 级改动在启动时读取），然后强制刷新页面。
+
+插件默认**完全中性、功能默认关闭**：未配置 `wallpaper` 时不做任何改动，
+所有可选功能（Markdown 渲染、用量面板快捷键、浮动历史条、GitHub 自动发现）
+默认关闭，需要时在设置里开启。想恢复默认主题：删除该行，或把 `wallpaper`
+设为 `''`。
+
+自行构建者注意：设置页要能加载，`ui-custom` 命名空间必须在 Web 客户端的
+设置暴露白名单里（`packages/host/apiproxy/src/api-proxy.ts` 的
+`WEB_SETTINGS_NAMESPACES`）——本检出已加入。
+
+---
 
 ### 工作原理
 
@@ -245,6 +256,19 @@ config:
   `var(--dsw-chat-surface, var(--dsw-alias-bg-base))` —— 一行完全向后兼容
   的回退写法（没有该 token 的原生 Harness 行为与之前完全一致），见
   `packages/client/ui-conversation`。
+- 框架结构：
+
+```
+packages/client/ui-custom/
+├── src/client/
+│   ├── index.ts          # 插件入口：解析预设 → 规范化 → 应用
+│   ├── config.ts         # CustomThemeConfig、DEFAULTS、normalizeConfig（类型收窄+钳制）
+│   ├── presets.ts        # ThemePreset 注册表 —— 美术选择的扩展面
+│   ├── apply.ts          # config → DOM：--dsu-* 变量、customCss、customVars
+│   └── custom.module.css # 消费 --dsu-* 变量的 token 覆盖
+├── tests/                # 配置管线单元测试
+└── README.md             # 本文档（中文 / English 双语）
+```
 
 ### 注意事项
 
@@ -257,71 +281,49 @@ config:
 
 ## English
 
-Configurable web-surface theming for **any** dsh web profile — no shell edits.
+### Overview
 
-The plugin is a small theme framework: it turns a config into theme-token
-overrides at runtime.
+Dsh-client-ui-custom is a pure front-end customization plugin: at runtime it
+turns one config into theme overrides, and it extends the **Settings** surface
+in three ways:
 
-- **Presets** — pick a named look (`preset: 'ink-teal'`) or hand-tune every knob
-- **Wallpaper** — any URL or web-served path (`/wall.jpg`, `https://…`)
-- **Glass levels** — one high-level choice for the frosted-glass look: `off` / `light` / `frosted` / `mica`
-- **Auto accent** — derive the accent color from the wallpaper automatically (Material-You style)
-- **Accent color** — one color drives the entire deepseek ramp (bubbles, info buttons, active/hover states, brand, scrollbar)
-- **Translucent surfaces** — main / sidebar / chat / input / code opacities, with a separate dark-mode opacity
-- **Tone-blend wash** — a light-theme gradient layered over the wallpaper
-- **Dark scrim** — keeps text contrast over the wallpaper in dark mode
-- **Escape hatches** — raw `customCss` and extra `customVars` for anything else
-- **Shortcuts** — user-customizable keybindings: new conversation, next model, cycle thinking effort
-- Font override, accent scrollbar, inset vignette
+- **Adds to General settings** — new rows under Settings → General for the
+  floating history strip (position / count) and user-message Markdown rendering;
+- **Adds to Plugin settings** — a new "Plugin Marketplace" tab under Settings → Plugins;
+- **Adds three new settings pages** — Appearance, Shortcuts, and Usage statistics.
 
-All rules live in the plugin's own stylesheet, gated behind
-`html[data-dsu-active]`: with no `wallpaper` configured the plugin is a no-op
-and the profile looks stock.
+Everything ships neutral and off by default: without configuration the UI is
+byte-for-byte stock, and no shell source is ever modified.
 
-### Framework layout
+### Settings at a glance
 
-```
-packages/client/ui-custom/
-├── src/client/
-│   ├── index.ts          # plugin entry: resolve preset → normalize → apply
-│   ├── config.ts         # CustomThemeConfig, DEFAULTS, normalizeConfig (coerce+clamp)
-│   ├── presets.ts        # ThemePreset registry — the extension surface for art choices
-│   ├── apply.ts          # config → DOM: --dsu-* vars, customCss, customVars
-│   └── custom.module.css # token overrides consuming the --dsu-* vars
-├── tests/                # config pipeline unit tests
-└── README.md             # this file (中文 / English bilingual)
-```
+| Where | Kind | What |
+| --- | --- | --- |
+| Settings → Appearance | new page | theming: wallpaper, glass, accent, surface opacity, fonts & texture |
+| Settings → Shortcuts | new page | keybinding recorder: new conversation, model switch, thinking effort, direct model jumps |
+| Settings → App Usage | new page | usage stats: four windows, trend chart, top sessions |
+| Settings → General | added rows | floating history strip (position / count), user-message Markdown toggle |
+| Settings → Plugins | added tab | "Plugin Marketplace": third-party plugin catalog |
 
-Adding a new art option later = one `ThemePreset` entry in `presets.ts` (and,
-for brand-new knobs, one field in `config.ts` + one line in `apply.ts` +
-`custom.module.css`).
+Each area is described in its own section below.
 
-### Install
+---
 
-1. Make sure the package builds into your deployment (`pnpm run build:lib:client`).
-2. Add a browser-roster row to your web profile's patch layer —
-   `~/.dsh/profiles/web/cordis.patch.yml` (or the equivalent `dsh.client`
-   roster of your profile):
+### Appearance (Settings → Appearance)
 
-```yaml
-- id: ui-custom
-  name: '@deepseek-ai/dsh-client-ui-custom'
-  config:
-    preset: 'ink-teal'        # pick a preset; any field below overrides it
-    wallpaper: '/my-wall.jpg'
-    wallpaperBlur: 14
-```
+A new settings page with the full theming form: wallpaper, glass level, accent
+color (auto-extracted from the wallpaper), per-surface opacities, tone gradient,
+dark scrim, fonts & scale, accent scrollbar and vignette — plus the merged
+**theme preference** (light / dark / system) that ui-theme contributes into
+this section. Changes save through the `ui-custom` settings namespace and
+**apply immediately** (the theme re-renders live, no restart); the form lets you
+**preview before saving** (Esc exits preview), and Reset reverts every field to
+the loader config. You can also apply a named look with `preset: '<id>'`, or
+"save as my preset" the current setup.
 
-3. Restart `dsh web` (profile-level changes are read at boot) and hard-refresh
-   the page.
-
-The plugin ships **neutral** and **feature-off by default**: with no
-`wallpaper` configured it changes nothing, and every opt-in feature (Markdown
-rendering, the usage-panel shortcut, the floating history strip, GitHub
-discovery) stays off until you turn it on in Settings. To go back to the
-stock theme, remove the row or set `wallpaper: ''`.
-
-### Presets
+**Presets** — each preset is a complete art direction carried by its own
+gradient (no shipped wallpapers — a preset works on its own, and your
+`wallpaper` still layers under it):
 
 | id | name | look |
 | --- | --- | --- |
@@ -332,14 +334,10 @@ stock theme, remove the row or set `wallpaper: ''`.
 | `mist-gray` | Mist Gray 雾灰 | cool slate mist, calm |
 | `ink-violet` | Ink Violet 墨紫 | quiet violet, tuned for dark mode |
 
-Each preset is a complete art direction carried by its own gradient (no shipped
-wallpapers — a preset works on its own, and your `wallpaper` still layers under
-it). More art choices will extend this list — see `src/client/presets.ts`.
+More art choices will extend this list — see `src/client/presets.ts`.
 
-### Glass levels
-
-`glass` is the high-level "how translucent" switch; an explicit `wallpaperBlur`
-always overrides the level's default radius.
+**Glass levels** — `glass` is the high-level "how translucent" switch; an
+explicit `wallpaperBlur` always overrides the level's default radius:
 
 | Level | Blur | Saturation | Vibe |
 | --- | --- | --- | --- |
@@ -348,9 +346,8 @@ always overrides the level's default radius.
 | `frosted` | 14px | 1.25 | strong acrylic (default) |
 | `mica` | 22px | 1.1 | soft static tint, keeps wallpaper hues |
 
-### Config reference
-
-Every field is optional; explicit values always win over the preset.
+**Theme config keys** — every field is optional; explicit values always win
+over the preset:
 
 | Key | Type | Default | Meaning |
 | --- | --- | --- | --- |
@@ -373,13 +370,35 @@ Every field is optional; explicit values always win over the preset.
 | `vignette` | boolean | `false` | Soft inset vignette on the app root |
 | `customCss` | string | `''` | Raw CSS appended verbatim (escape hatch) |
 | `customVars` | object | `{}` | Extra CSS custom properties written on `<html>` (escape hatch) |
-| `shortcuts` | object | unbound, except `sendMessage: 'Enter'`, `newline: 'Shift+Enter'` | Keybindings — see Shortcuts below |
 
-### Shortcuts
+Full example with overrides and escape hatches:
 
-Bind any of three actions to a key combo (empty/absent = disabled). Combos use
-`Mod+Alt+Shift+<key>` syntax: `Mod` matches **Ctrl or Meta** (platform-agnostic),
-`<key>` is a letter, digit, or named key (`space`, `enter`, `f5`, `arrowup`, …).
+```yaml
+config:
+  preset: 'ink-teal'
+  wallpaper: 'https://example.com/wall.jpg'
+  glass: 'mica'              # or wallpaperBlur: 8 for a custom radius
+  autoAccent: true           # accent derived from the wallpaper
+  chatSurfaceOpacity: 70
+  customCss: |
+    .some-hashed-class { border-radius: 16px; }
+  customVars:
+    '--my-accent-soft': 'rgb(255 127 178 / 0.3)'
+```
+
+---
+
+### Shortcuts (Settings → Shortcuts)
+
+A new settings page with user-recordable keybindings. Each binding is a
+click-to-record field (press the combination, Esc cancels), with Save / Reset
+per section; values live in the `ui-custom` settings namespace and runtime
+changes apply immediately without a restart (the loader config acts as the
+composition base, so Reset reverts to the loader defaults).
+
+Combos use `Mod+Alt+Shift+<key>` syntax: `Mod` matches **Ctrl or Meta**
+(platform-agnostic), `<key>` is a letter, digit, or named key (`space`, `enter`,
+`f5`, `arrowup`, …). Empty/absent = disabled.
 
 | Action | What it does |
 | --- | --- |
@@ -389,6 +408,8 @@ Bind any of three actions to a key combo (empty/absent = disabled). Combos use
 | `sendMessage` | Composer send gesture (default: `Enter`) |
 | `newline` | Composer newline gesture (default: `Shift+Enter`) |
 | `usagePanel` | Pop the app-usage panel (unbound by default — opt in from Settings, e.g. `Mod+Alt+U`) |
+| `defaultWorkspace` | Workspace the new-conversation shortcut opens in ('' = current/recent) |
+| `modelShortcuts` | One-to-one model jumps: each combo goes straight to a specific model (combo / provider / model) |
 
 ```yaml
 config:
@@ -414,67 +435,70 @@ subagent sessions are skipped (same guard the UI applies). Combos without `Mod`
 are suppressed while you're typing in an input, so plain keys never hijack the
 composer.
 
-#### Settings page
+---
 
-The plugin registers a dedicated **Shortcuts** page in Settings (设置 → 快捷键).
-Each binding is a click-to-record field (press the combination, Esc cancels),
-with Save / Reset per section. Values live in the plugin's settings namespace
-(`ui-custom`): the loader config (above) acts as the composition base, so a
-Reset reverts to the loader default and runtime changes apply immediately
-without a restart.
+### Usage statistics (Settings → App Usage)
 
-Self-builders: for the settings page to load, the `ui-custom` namespace must be
-in the web client's settings exposure allowlist
-(`WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`) — it is
-in this checkout.
+A new settings page that aggregates each session's usage projections
+(token-meter + session-stats) over four time windows — last year / month / week
+/ 3 days — showing **total / input / output tokens, cache hits (with hit rate),
+model time, sessions & steps**, plus a usage trend chart and a top-sessions
+list. Pure client-side: the session list rows already carry the host-computed
+projections, so no extra RPCs.
 
-#### Appearance settings (外观)
+The panel can be popped from anywhere via a shortcut (unbound by default — bind
+`usagePanel` in the Shortcuts page, e.g. `Mod+Alt+U`).
 
-A dedicated **Appearance** page in Settings (设置 → 外观) with the full art
-customization form — wallpaper, glass level, accent color (+ auto-extract),
-all surface opacities, tone gradient, dark scrim, font, accent scrollbar and
-vignette — plus the merged **theme preference** (light / dark / system) that
-ui-theme contributes into this section. Changes save through the `ui-custom`
-settings namespace and **apply immediately** (the theme re-renders live, no
-restart). The loader config (above) acts as the composition base: Reset
-reverts every field to it.
+---
 
-Note: this ships with a small ui-theme integration patch that moves the
-product appearance row from General into the Appearance section
-(`packages/client/ui-theme/src/client/index.ts` targets `settings.appearance.item`);
-without ui-custom installed the row is simply not mounted.
+### General settings additions
 
-#### Plugin marketplace (插件市场)
+Three new rows under Settings → General:
 
-A **Plugin Marketplace** tab in Settings → Plugins (next to Plugin
-configuration and Plugin list): a catalog of **third-party** DSH plugins with
-one-line descriptions and GitHub source links. DSH built-ins already ship in
-the roster and are intentionally **not** listed. The catalog loads from a
-GitHub raw manifest — set `marketplaceUrl` in the plugin config to the raw URL
-of a `marketplace.json` you publish (this package ships one as an example),
-and the market populates from GitHub with a bundled-empty fallback. **Install**
-copies the exact `- insert:` YAML to the clipboard; pasting it into the
-watched profile patch file (`~/.dsh/profiles/web/cordis.patch.yml`) applies
-the plugin live, no restart. Entries already in the Host inventory show an
-"Installed" badge.
+**Floating history strip (position / count)** — a strip of recent turns floats
+on the conversation's right edge:
+- **Position**: `left` / `right` / `off` (default `off` — hidden until enabled);
+- **Count**: how many recent turns to show (default 10, `0` = all);
+- Clicking an entry smooth-scrolls the chat there; entries come from the mounted
+  chat snapshot, so jumping is a pure DOM operation — no extra RPCs;
+- **Pin support**: pin a turn to the strip from the assistant-actions row
+  (between copy and branch). Pinned turns ignore the count limit, always show,
+  and carry the accent frame (the button hides itself while the strip is off).
 
-#### App usage
+**User-message Markdown rendering** — off by default; when enabled your own
+messages render as Markdown (headings, lists, code blocks, `@subagent` /
+`@skill` references, …). Off = the stock plain-text look.
 
-A dedicated **App Usage** page in Settings (设置 → 应用用量) plus a configurable
-shortcut (unbound by default, e.g. `Mod+Alt+U`) that pops the same panel
-anywhere. It aggregates each session's usage projections (token-meter +
-session-stats) over four windows — last year / month / week / 3 days — showing
-total / input / output tokens, cache hits (with hit rate), model time, sessions
-& steps, a usage trend chart, and a top-sessions list. Pure client-side: the
-session list rows already carry the host-computed projections, so no extra RPCs.
+---
 
-#### Conversation outline (对话大纲)
+### Plugin settings additions (Settings → Plugins → Plugin Marketplace)
 
-The **right sidebar** becomes a jump map of the current conversation: a
-floating pill on the right edge opens it, and the panel lists every segment
-(user question + following answer preview). Click a segment to smoothly scroll
-the chat there and flash an accent marker on the row. Segments come from the
-mounted chat snapshot, so jumping is a pure DOM operation — no extra RPCs.
+A third tab **"Plugin Marketplace"** next to Plugin configuration and Plugin
+list: a catalog of **third-party** DSH plugins with one-line descriptions and
+GitHub source links. DSH built-ins already ship in the roster and are
+intentionally **not** listed.
+
+- Sources: the `marketplaceUrl` config (raw GitHub manifest URL(s) and/or
+  GitHub repo URL(s), several allowed); on total failure the catalog stays
+  empty. This package ships a `marketplace.json` as an example;
+- Optional **GitHub auto-discovery**: repos tagged with the `dsh-plugin` topic,
+  merged after the configured sources and sorted by stars / publish date
+  (`discoverGitHub` / `discoverSort` / `discoverLimit`);
+- **Install**: one click copies the exact `- insert:` YAML to the clipboard;
+  pasting it into the watched profile patch file
+  (`~/.dsh/profiles/web/cordis.patch.yml`) applies the plugin live, no restart;
+- Entries already in the Host inventory show an "Installed" badge.
+
+---
+
+### Other UI features
+
+**Conversation outline (right-side jump map)** — the right sidebar becomes a
+jump map of the current conversation: a floating pill on the right edge opens
+it, and the panel lists every segment (user question + following answer
+preview). Click a segment to smoothly scroll the chat there and flash an accent
+marker on the row. Segments come from the mounted chat snapshot, so jumping is
+a pure DOM operation — no extra RPCs.
 
 Implementation note: the stock details column is a `single` slot whose stock
 panel has no entry point, so the plugin **shadows** it (`priority: -1`, lowest
@@ -482,24 +506,39 @@ renders) with the outline panel. The tool-details seat it declared disappears
 with it; ui-tool defers via `inject`, so nothing throws and a stock harness
 without this plugin is untouched.
 
-Example with overrides and escape hatches:
+---
+
+### Install
+
+1. Make sure the package builds into your deployment (`pnpm run build:lib:client`).
+2. Add a browser-roster row to your web profile's patch layer —
+   `~/.dsh/profiles/web/cordis.patch.yml` (or the equivalent `dsh.client`
+   roster of your profile):
 
 ```yaml
-config:
-  preset: 'ink-teal'
-  wallpaper: 'https://example.com/wall.jpg'
-  glass: 'mica'              # or wallpaperBlur: 8 for a custom radius
-  autoAccent: true           # accent derived from the wallpaper
-  chatSurfaceOpacity: 70
-  customCss: |
-    .some-hashed-class { border-radius: 16px; }
-  customVars:
-    '--my-accent-soft': 'rgb(255 127 178 / 0.3)'
-  shortcuts:
-    newConversation: 'Mod+Alt+N'
-    switchModel: 'Mod+Alt+M'
-    cycleThinking: 'Mod+Alt+T'
+- id: ui-custom
+  name: '@deepseek-ai/dsh-client-ui-custom'
+  config:
+    preset: 'ink-teal'        # pick a preset; any field below overrides it
+    wallpaper: '/my-wall.jpg'
+    wallpaperBlur: 14
 ```
+
+3. Restart `dsh web` (profile-level changes are read at boot) and hard-refresh
+   the page.
+
+The plugin ships **neutral** and **feature-off by default**: with no `wallpaper`
+configured it changes nothing, and every opt-in feature (Markdown rendering,
+the usage-panel shortcut, the floating history strip, GitHub discovery) stays
+off until you turn it on in Settings. To go back to the stock theme, remove the
+row or set `wallpaper: ''`.
+
+Self-builders: for the settings pages to load, the `ui-custom` namespace must
+be in the web client's settings exposure allowlist
+(`WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`) — it is
+in this checkout.
+
+---
 
 ### How it works
 
@@ -517,6 +556,19 @@ config:
   `var(--dsw-chat-surface, var(--dsw-alias-bg-base))` — a one-line, fully
   backwards-compatible fallback (stock harnesses without the token behave
   exactly as before). See `packages/client/ui-conversation`.
+- Framework layout:
+
+```
+packages/client/ui-custom/
+├── src/client/
+│   ├── index.ts          # plugin entry: resolve preset → normalize → apply
+│   ├── config.ts         # CustomThemeConfig, DEFAULTS, normalizeConfig (coerce+clamp)
+│   ├── presets.ts        # ThemePreset registry — the extension surface for art choices
+│   ├── apply.ts          # config → DOM: --dsu-* vars, customCss, customVars
+│   └── custom.module.css # token overrides consuming the --dsu-* vars
+├── tests/                # config pipeline unit tests
+└── README.md             # this file (中文 / English bilingual)
+```
 
 ### Notes
 
