@@ -19,7 +19,7 @@ Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配�
 - **修改了插件项** —— 在「设置 → 插件」里新增了「插件市场」tab；
 - **新增了三个设置页** —— 「外观」「快捷键」「用量统计」。
 
-所有功能默认中性关闭：不配置时界面与原生完全一致，全程零 shell 改动。
+所有功能默认完全中性、功能默认关闭：不配置时界面与原生完全一致，全程零 shell 改动。
 
 ### 设置改动一览
 
@@ -45,7 +45,7 @@ Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配�
 
 <img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-mini.png" width="720" alt="小窗预览">
 
-也支持全屏预览，按F2即可退出。
+也支持全屏预览，按 F2 即可退出。
 
 <img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-fullscreen.png" width="900" alt="全屏预览">
 
@@ -271,8 +271,8 @@ packages/client/ui-custom/
 
 - profile 的 `cordis.patch.yml` 改动需要重启 `dsh web` 才生效。
 - 壁纸必须能被浏览器访问（例如放在 Web 服务静态根目录下，或外部 URL）。
-- 配置在插件加载时读取一次；通过设置界面热改是规划中的后续步骤
-  （为 `ui-settings-plugins` 提供 schemastery schema）。
+- 插件自带的设置页（外观、快捷键、用量统计等）修改**实时生效**、无需重启；
+  通过内置「插件配置」页直接编辑 loader 层配置暂不支持（待 `ui-settings-plugins` 的 schema）。
 
 ---
 
@@ -310,7 +310,7 @@ byte-for-byte stock, and no shell source is ever modified.
 A new settings page with a full theming space: wallpaper, glass level, accent
 color (auto-extracted from the wallpaper), per-surface opacities, tone gradient,
 dark scrim, fonts & scale, accent scrollbar and vignette — plus the merged
-**theme preference** (light / dark / system) that ui-theme contributes into
+**theme preference** (light / dark / system) that ui-theme contributes to
 this section. Changes save through the `ui-custom` settings namespace and
 **apply immediately** (the theme re-renders live, no restart).
 
@@ -510,9 +510,9 @@ a pure DOM operation — no extra RPCs.
 
 Implementation note: the stock details column is a `single` slot whose stock
 panel has no entry point, so the plugin **shadows** it (`priority: -1`, lowest
-renders) with the outline panel. The tool-details seat it declared disappears
-with it; ui-tool defers via `inject`, so nothing throws and a stock harness
-without this plugin is untouched.
+renders) with the outline panel. The tool-details seat declared by that panel
+disappears with it; ui-tool defers via `inject`, so nothing throws and a stock
+harness without this plugin is untouched.
 
 ---
 
@@ -583,5 +583,6 @@ packages/client/ui-custom/
 - Profile `cordis.patch.yml` changes require a `dsh web` restart.
 - The wallpaper must be reachable by the browser (e.g. placed under the web
   server's static root or an external URL).
-- Config is read at plugin load; live reconfiguration through the settings UI
-  is a planned follow-up (schemastery schema for `ui-settings-plugins`).
+- The plugin's own settings pages (Appearance, Shortcuts, App Usage, …) apply
+  changes immediately without a restart; editing the loader-layer config
+  through the built-in Plugin Configuration page is not supported yet.
