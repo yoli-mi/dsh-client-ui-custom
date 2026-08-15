@@ -31,7 +31,7 @@ Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配�
 | 设置 → 通用 | 修改原有页 | 新增浮动历史条（可调节位置，数量）、用户消息 Markdown 渲染开关 |
 | 设置 → 插件 | 修改原有页 | 新增「插件市场」tab：第三方插件目录 |
 
-![设置改动一览](assets/settings-new.png)
+![设置改动一览](https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/settings-new.png)
 
 ---
 
@@ -45,11 +45,11 @@ Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配�
 
 **预览**—— 主题定制支持小窗预览。
 
-<img src="assets/preview-mini.png" width="720" alt="小窗预览">
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-mini.png" width="720" alt="小窗预览">
 
 也支持全屏预览，按F2即可退出。
 
-<img src="assets/preview-fullscreen.png" width="900" alt="全屏预览">
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-fullscreen.png" width="900" alt="全屏预览">
 
 
 **预设（Preset）** —— 插件内置了六种预设，每个预设都有独立的的风格（预设可独立生效，你自己的 `wallpaper` 仍会叠加在它之下），：
@@ -136,7 +136,7 @@ config:
 | `defaultWorkspace` | `newConversation` 打开的目标工作区（空 = 当前/最近） |
 | `modelShortcuts` | 一对一模型直达：每个组合键跳到指定模型（combo / provider / model） |
 
-<img src="assets/shortcuts.png" width="720" alt="快捷键设置页">
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/shortcuts.png" width="720" alt="快捷键设置页">
 
 实例：
 
@@ -191,7 +191,7 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 渲染（标题、列表、代码块、`@子代理` / `@技能` 引用等），关闭时与原生
 纯文本外观一致。
 
-<img src="assets/general-settings.png" width="720" alt="通用设置">
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/general-settings.png" width="720" alt="通用设置">
 
 ---
 
@@ -209,7 +209,7 @@ DSH 内置包已在 roster 中，**故意不列出**。
   profile 补丁文件（`~/.dsh/profiles/web/cordis.patch.yml`）即**无需重启**生效；
 - 已在宿主清单里的插件显示「已安装」徽标。
 
-<img src="assets/marketplace.png" width="720" alt="插件市场">
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/marketplace.png" width="720" alt="插件市场">
 
 ---
 
