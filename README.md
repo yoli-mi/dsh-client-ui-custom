@@ -262,7 +262,8 @@ packages/client/ui-custom/
 │   ├── config.ts         # CustomThemeConfig、DEFAULTS、normalizeConfig（类型收窄+钳制）
 │   ├── presets.ts        # ThemePreset 注册表 —— 美术选择的扩展面
 │   ├── apply.ts          # config → DOM：--dsu-* 变量、customCss、customVars
-│   └── custom.module.css # 消费 --dsu-* 变量的 token 覆盖
+│   ├── custom.module.css # 消费 --dsu-* 变量的 token 覆盖
+│   └── …                 # 其余功能子目录（appearance/ settings/ usage/ marketplace/ history/ pin/ markdown/）
 ├── tests/                # 配置管线单元测试
 └── README.md             # 本文档（中文 / English 双语）
 ```
@@ -573,7 +574,8 @@ packages/client/ui-custom/
 │   ├── config.ts         # CustomThemeConfig, DEFAULTS, normalizeConfig (coerce+clamp)
 │   ├── presets.ts        # ThemePreset registry — the extension surface for art choices
 │   ├── apply.ts          # config → DOM: --dsu-* vars, customCss, customVars
-│   └── custom.module.css # token overrides consuming the --dsu-* vars
+│   ├── custom.module.css # token overrides consuming the --dsu-* vars
+│   └── …                 # remaining feature subdirectories (appearance/ settings/ usage/ marketplace/ history/ pin/ markdown/)
 ├── tests/                # config pipeline unit tests
 └── README.md             # this file (中文 / English bilingual)
 ```
