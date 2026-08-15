@@ -31,8 +31,6 @@ Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配�
 | 设置 → 通用 | 修改原有页 | 新增浮动历史条（可调节位置，数量）、用户消息 Markdown 渲染开关 |
 | 设置 → 插件 | 修改原有页 | 新增「插件市场」tab：第三方插件目录 |
 
-![设置改动一览](https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/settings-new.png)
-
 ---
 
 ### 外观（设置 → 外观）
@@ -304,8 +302,6 @@ byte-for-byte stock, and no shell source is ever modified.
 | Settings → App Usage | new page | usage stats: aggregated over four windows, with a trend chart and session ranking |
 | Settings → General | added rows | floating history strip (adjustable position / count), user-message Markdown toggle |
 | Settings → Plugins | added tab | "Plugin Marketplace": third-party plugin catalog |
-
-![Settings at a glance](https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/settings-new.png)
 
 ---
 
