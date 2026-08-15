@@ -1,0 +1,90 @@
+/* User message bubble chrome (replicated from ui-conversation's MessageItem
+   geometry so the shadowed renderer stays visually identical to stock). */
+
+.userRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.userStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 0;
+  max-width: min(525px, 82%);
+}
+
+.bubble {
+  max-width: 100%;
+  background: var(--dsw-specific-bubble-user, var(--dsw-specific-bubble));
+  border-radius: 22px;
+  box-shadow: 0 2px 10px rgb(15 17 21 / 0.06);
+  padding: 10px 16px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* Reference chip projection inside a user bubble. */
+.refChip {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: rgba(97, 135, 216, 0.22);
+  color: var(--dsw-alias-label-primary);
+  font-size: 0.85em;
+  line-height: 1.6;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+/* Copy + clock actions row (user chrome; time fades in on hover). */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+}
+
+.timeStart {
+  padding-right: 12px;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--dsw-alias-label-tertiary);
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  [data-time-hover-root] .timeStart {
+    opacity: 0;
+    transition: opacity 80ms ease;
+  }
+
+  [data-time-hover-root]:hover .timeStart,
+  [data-time-hover-root]:focus-within .timeStart {
+    opacity: 1;
+  }
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border: none;
+  border-radius: 28px;
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  cursor: pointer;
+}
+
+.action:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}

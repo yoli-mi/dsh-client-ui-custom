@@ -1,0 +1,160 @@
+/* Conversation-blended history strip: rendered by the details-slot entry but
+   floated `position: fixed` over the conversation's edge, so it reads as part
+   of the body (the details column itself stays zero-width/closed — no
+   separate panel). Transparent and click-through except on the bars.
+   Side (left/right) is a settings choice; the two sides are mirrors — the
+   strip anchors to that edge of the conversation (the right strip to the
+   viewport's right edge, the left strip to the rendered sidebar width, set
+   inline from a live measurement) and bars align to the outer edge, so on
+   hover they stretch inward (left strip grows rightward, right strip grows
+   leftward) into a peak/wave silhouette tinted with the appearance accent
+   (--dsu-accent). The bar for the turn on screen keeps a subtle accent tint
+   as the persistent marker. */
+
+.strip {
+  position: fixed;
+  top: 50%;
+  /* NOTE: use `translate`, not `transform` — a transform ancestor becomes the
+     containing block for the fixed-positioned tooltip child, offsetting it. */
+  translate: 0 -50%;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 2px;
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Right side (default): anchored to the right edge, bars right-aligned. */
+.stripRight {
+  right: 12px;
+  align-items: flex-end;
+}
+
+/* Left side: anchored to the conversation's left edge (the sidebar's right —
+   the measured value arrives inline), bars left-aligned. `left: 12px` is only
+   the pre-measure fallback for one frame. */
+.stripLeft {
+  left: 12px;
+  align-items: flex-start;
+}
+
+/* One history bar (one user turn). Width is driven inline by the wave state;
+   the colour here is the idle neutral — subtle so it blends into the body. */
+.bar {
+  flex: none;
+  height: 5px;
+  border: none;
+  border-radius: 3px;
+  background: var(--dsw-alias-border-l2);
+  cursor: pointer;
+  transition:
+    width 200ms cubic-bezier(0.2, 0.7, 0.3, 1.1),
+    background 200ms ease;
+}
+
+.bar:hover,
+.bar:focus-visible {
+  outline: none;
+}
+
+/* Pinned turn (悬挂): an accent frame marks the record as pinned — it stays
+   visible through hover/active since only the wave classes rewrite the fill;
+   the inset ring (box-shadow) persists on every state. */
+.barPinned {
+  background: color-mix(in srgb, var(--dsu-accent, var(--dsw-alias-brand-primary)) 25%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--dsu-accent, var(--dsw-alias-brand-primary));
+}
+
+/* Persistent marker: the turn currently on screen keeps a subtle accent tint. */
+.barActive {
+  background: color-mix(in srgb, var(--dsu-accent, var(--dsw-alias-brand-primary)) 55%, transparent);
+}
+
+/* Wave hover: distance 0 → full accent; neighbours taper the tint. */
+.barPeak {
+  background: var(--dsu-accent, var(--dsw-alias-brand-primary));
+}
+
+.barNear {
+  background: color-mix(in srgb, var(--dsu-accent, var(--dsw-alias-brand-primary)) 50%, transparent);
+}
+
+.barFar {
+  background: color-mix(in srgb, var(--dsu-accent, var(--dsw-alias-brand-primary)) 28%, transparent);
+}
+
+/* Custom tooltip: replaces the native `title` bubble — a small dark card
+   with an accent dot, anchored beside the hovered bar (left of a right-side
+   strip, right of a left-side strip). */
+.tooltip {
+  position: fixed;
+  right: 64px;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 220px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  /* Solid light/dark-adaptive surface, tinted with the theme accent — stays
+     readable in both themes while matching the art theme. */
+  background: color-mix(in srgb, var(--dsu-accent, var(--dsw-alias-brand-primary)) 6%, var(--dsw-alias-bg-overlay));
+  border: 1px solid var(--dsw-alias-border-l2);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.25);
+  pointer-events: none;
+  animation: dshTooltipInRight 160ms ease;
+}
+
+/* Left-side strip: the tooltip sits on the strip's right instead (anchored
+   inline beside the measured strip position). */
+.tooltipLeft {
+  right: auto;
+  animation: dshTooltipInLeft 160ms ease;
+}
+
+@keyframes dshTooltipInRight {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+@keyframes dshTooltipInLeft {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+.tooltipDot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dsu-accent, var(--dsw-alias-brand-primary));
+}
+
+.tooltipText {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--dsw-alias-label-primary);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

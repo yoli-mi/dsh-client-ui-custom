@@ -1,0 +1,1 @@
+{"version":3,"file":"usage-overlay.d.ts","sourceRoot":"","sources":["../../../src/client/usage-overlay.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAaH,4DAA4D;AAC5D,eAAO,MAAM,YAAY;IACvB,2DAA2D;uBAC1C,OAAO;IACxB,uCAAuC;0BACjB,MAAM,IAAI,KAAG,CAAC,MAAM,IAAI,CAAC;IAI/C,0CAA0C;kBAC9B,IAAI;IAIhB,2CAA2C;iBAChC,IAAI;CAKhB,CAAA"}

@@ -1,0 +1,19 @@
+/* Clean preview hint: a small, unobtrusive pill at the bottom of the viewport
+   shown only while the appearance draft is previewed on the document. */
+
+.hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+  padding: 6px 14px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dsw-alias-bg-overlay) 92%, transparent);
+  box-shadow: var(--dsw-shadow-lv3);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+  pointer-events: none;
+}

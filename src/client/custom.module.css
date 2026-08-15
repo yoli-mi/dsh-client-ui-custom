@@ -1,0 +1,128 @@
+/* Web-surface theme overrides, gated behind html[data-dsu-active] (set by the
+   plugin JS) so a stock profile without a configured wallpaper is untouched.
+   Every value flows through --dsu-* custom properties written on <html> by
+   the plugin; the fallbacks here mirror the plugin's shipped defaults. Rules
+   deliberately out-specify the theme sheets so the plugin wins the cascade. */
+
+html[data-dsu-active='1'] body {
+  /* Wallpaper + optional tone overlay + light-theme tone-blend wash. */
+  background-image: var(--dsu-gradient, none), var(--dsu-tone, none), var(--dsu-wallpaper, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+
+  /* Whole-UI font scale (--dsu-font-scale written only when ≠ 1; 1 = stock).
+     zoom scales every px-based font and layout uniformly (the UI is px, so a
+     rem/root-font approach would not reach it). */
+  zoom: var(--dsu-font-scale, 1);
+
+  /* Font overrides: --dsu-font / --dsu-code-font written by the plugin when
+     set; when unset, var() computes to invalid → the properties fall back to
+     the inherited token values, so the stock fonts are untouched. */
+  --dsw-font-family: var(--dsu-font);
+  --ds-font-family-code: var(--dsu-code-font);
+
+  /* Optional font override. */
+  font-family: var(--dsw-font-family);
+
+  /* Accent ramp derived from a single accent color. */
+  --dsw-static-deepseek-50: color-mix(in srgb, var(--dsu-accent, #4176e6) 15%, white);
+  --dsw-static-deepseek-100: color-mix(in srgb, var(--dsu-accent, #4176e6) 30%, white);
+  --dsw-static-deepseek-200: color-mix(in srgb, var(--dsu-accent, #4176e6) 45%, white);
+  --dsw-static-deepseek-300: color-mix(in srgb, var(--dsu-accent, #4176e6) 62%, white);
+  --dsw-static-deepseek-400: color-mix(in srgb, var(--dsu-accent, #4176e6) 78%, white);
+  --dsw-static-deepseek-450: color-mix(in srgb, var(--dsu-accent, #4176e6) 92%, white);
+  --dsw-static-deepseek-500: var(--dsu-accent, #4176e6);
+  --dsw-static-deepseek-600: color-mix(in srgb, var(--dsu-accent, #4176e6) 85%, black);
+  --dsw-static-deepseek-700-delete: color-mix(in srgb, var(--dsu-accent, #4176e6) 75%, black);
+  --dsw-static-deepseek-800: color-mix(in srgb, var(--dsu-accent, #4176e6) 60%, black);
+  --dsw-static-deepseek-900: color-mix(in srgb, var(--dsu-accent, #4176e6) 45%, black);
+
+  /* Brand + interactive accents follow the ramp. */
+  --dsw-alias-brand-primary: var(--dsw-static-deepseek-500);
+  --dsw-alias-brand-primary-new-colorprimary-new-color: var(--dsw-static-deepseek-450);
+  --dsw-alias-brand-text: var(--dsw-static-deepseek-600);
+  --dsw-alias-button-primary-fill: var(--dsw-alias-brand-primary);
+  --dsw-alias-button-primary-hover: var(--dsw-static-deepseek-600);
+  --dsw-alias-interactive-bg-active: color-mix(in srgb, var(--dsu-accent, #4176e6) 16%, transparent);
+  --dsw-alias-interactive-bg-hover-accent: color-mix(in srgb, var(--dsu-accent, #4176e6) 14%, transparent);
+
+  /* Translucent glass surfaces (light-theme hues). */
+  --dsw-alias-bg-base: color-mix(in srgb, var(--dsw-static-neutral-bluish-00) var(--dsu-surface-alpha, 50%), transparent);
+  --dsw-specific-sidebar-fill: color-mix(in srgb, var(--dsw-static-neutral-bluish-50) var(--dsu-sidebar-alpha, 50%), transparent);
+  --dsw-chat-surface: color-mix(in srgb, var(--dsw-static-neutral-bluish-00) var(--dsu-chat-alpha, 80%), transparent);
+  --dsw-specific-input-major: color-mix(in srgb, var(--dsw-static-neutral-bluish-00) var(--dsu-input-alpha, 82%), transparent);
+  --dsw-alias-markdown-code-block: color-mix(in srgb, var(--dsw-static-deepseek-50) var(--dsu-code-alpha, 45%), transparent);
+  --dsw-alias-markdown-code-block-banner: color-mix(in srgb, var(--dsw-static-deepseek-100) calc(var(--dsu-code-alpha, 45%) + 10%), transparent);
+  --dsw-alias-markdown-inline-code: color-mix(in srgb, var(--dsw-static-deepseek-100) calc(var(--dsu-code-alpha, 45%) + 15%), transparent);
+
+  /* Optional accent scrollbar (--dsu-scrollbar: 1 or 0). */
+  --dsw-alias-scrollbar-bg-l1: color-mix(in srgb, var(--dsu-accent, #4176e6) calc(var(--dsu-scrollbar, 0) * 30%), transparent);
+  --dsw-alias-scrollbar-bg-l2: color-mix(in srgb, var(--dsu-accent, #4176e6) calc(var(--dsu-scrollbar, 0) * 30%), transparent);
+  --dsw-alias-scrollbar-hover-l1: color-mix(in srgb, var(--dsu-accent, #4176e6) calc(var(--dsu-scrollbar, 0) * 55%), transparent);
+  --dsw-alias-scrollbar-hover-l2: color-mix(in srgb, var(--dsu-accent, #4176e6) calc(var(--dsu-scrollbar, 0) * 55%), transparent);
+}
+
+/* Dark theme: scrim over the wallpaper + dark glass hues. Must out-specify
+   the rule above (html + attribute + body + dark attribute). The gradient
+   wash is kept as a layer here too, so a gradient-only theme (no wallpaper)
+   renders the same art direction in both modes — just dimmed by the scrim. */
+html[data-dsu-active='1'] body[data-ds-dark-theme] {
+  background-image:
+    linear-gradient(180deg, var(--dsu-scrim, rgb(15 17 21 / 0.22)), var(--dsu-scrim, rgb(15 17 21 / 0.22))),
+    var(--dsu-gradient, none),
+    var(--dsu-tone, none),
+    var(--dsu-wallpaper, none);
+
+  /* Optional dark-mode accent override (--dsu-dark-accent set by the plugin);
+     unset falls back to the light ramp's dark step. */
+  --dsw-alias-brand-primary: var(--dsu-dark-accent, var(--dsw-static-deepseek-400));
+  --dsw-alias-button-primary-fill: var(--dsu-dark-accent, var(--dsw-static-deepseek-400));
+  --dsw-alias-button-primary-hover: var(--dsu-dark-accent, var(--dsw-static-deepseek-400));
+  --dsw-alias-brand-text: var(--dsw-static-deepseek-300);
+
+  --dsw-alias-bg-base: color-mix(in srgb, var(--dsw-static-neutral-bluish-950) var(--dsu-dark-alpha, var(--dsu-surface-alpha, 50%)), transparent);
+  --dsw-specific-sidebar-fill: color-mix(in srgb, var(--dsw-static-neutral-bluish-950) var(--dsu-sidebar-alpha, var(--dsu-dark-alpha, 50%)), transparent);
+  --dsw-chat-surface: color-mix(in srgb, var(--dsw-static-neutral-bluish-950) var(--dsu-chat-alpha, var(--dsu-dark-alpha, 50%)), transparent);
+  --dsw-specific-input-major: color-mix(in srgb, var(--dsw-static-neutral-bluish-850) var(--dsu-input-alpha, var(--dsu-dark-alpha, 50%)), transparent);
+  --dsw-alias-markdown-code-block: color-mix(in srgb, var(--dsw-static-neutral-bluish-900) var(--dsu-code-alpha, var(--dsu-dark-alpha, 50%)), transparent);
+  --dsw-alias-markdown-code-block-banner: color-mix(in srgb, var(--dsw-static-neutral-bluish-850) calc(var(--dsu-code-alpha, var(--dsu-dark-alpha, 50%)) + 10%), transparent);
+  --dsw-alias-markdown-inline-code: color-mix(in srgb, var(--dsw-static-deepseek-900) calc(var(--dsu-code-alpha, var(--dsu-dark-alpha, 50%)) + 15%), transparent);
+}
+
+/* Frosted glass + optional inset vignette on the app root. */
+html[data-dsu-active='1'] #root {
+  backdrop-filter: blur(var(--dsu-blur, 0px)) saturate(var(--dsu-saturate, 1.25));
+  -webkit-backdrop-filter: blur(var(--dsu-blur, 0px)) saturate(var(--dsu-saturate, 1.25));
+  box-shadow: inset 0 0 40px rgb(15 17 21 / calc(var(--dsu-vignette, 0) * 0.10));
+}
+
+/* ── Opt-in refinement knobs ────────────────────────────────────────────────
+   Each rule only takes effect when the plugin writes the corresponding
+   --dsu-* property; an unset var invalidates the declaration and the stock
+   class style wins, so the plugin changes nothing out of the box. */
+
+/* Corner radius: chat rows, inputs, dialogs and menus. */
+html[data-dsu-active='1'] [data-chat-anchor-key],
+html[data-dsu-active='1'] input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+html[data-dsu-active='1'] textarea,
+html[data-dsu-active='1'] [role='dialog'],
+html[data-dsu-active='1'] [role='menu'] {
+  border-radius: var(--dsu-radius);
+}
+
+/* Surface shadow: dialogs and menus. */
+html[data-dsu-active='1'] [role='dialog'],
+html[data-dsu-active='1'] [role='menu'] {
+  box-shadow: var(--dsu-shadow);
+}
+
+/* Focus glow: accent ring on keyboard focus (strength scales with
+   --dsu-focus-glow, 0 = transparent = stock). */
+html[data-dsu-active='1'] input:focus-visible,
+html[data-dsu-active='1'] textarea:focus-visible,
+html[data-dsu-active='1'] button:focus-visible,
+html[data-dsu-active='1'] [role='button']:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsu-accent, #4176e6) calc(var(--dsu-focus-glow, 0) * 45%), transparent);
+}

@@ -1,0 +1,493 @@
+/**
+ * Web-surface theme plugin, browser half: theme customization + user
+ * keyboard shortcuts, plus the "快捷键" settings section.
+ *
+ * Theme pipeline (config.ts / presets.ts / apply.ts):
+ *   DEFAULTS ← preset (preset: '<id>') ← profile config, then
+ *   normalizeConfig() clamps every field and applyConfig() writes the
+ *   `--dsu-*` variables the stylesheet consumes. The whole override set is
+ *   gated behind `html[data-dsu-active]`; with no wallpaper configured the
+ *   theme side is a no-op and the profile stays stock.
+ *
+ * Shortcuts (shortcuts.ts / actions.ts): user-configured keybindings for
+ * new-conversation, next-model, and thinking-effort cycling, dispatched over
+ * the same services the built-in UI uses. Bindings merge the loader-config
+ * defaults with the runtime settings section (`ui-custom` namespace, editable
+ * from the "快捷键" settings page), so a change there applies immediately.
+ */
+import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
+import type { ConnectionHandle, SessionId } from '@deepseek-ai/dsh-api-remotes/client'
+// Type-only: pulls the locale Context merge (ctx.locale) and the settings
+// scope + settings.section slot declarations (ctx.settingsScope, SlotMap).
+import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type {} from '@deepseek-ai/dsh-client-ui-slots'
+// Type-only: pulls the ui-layout SlotMap merge (the shell.overlay seat).
+import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
+// Type-only: pulls the ui-conversation SlotMap merge (the
+// conversation.chat.assistant-actions entry + its owner props).
+import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { SHORTCUT_HANDLERS, modelCatalogOptions, selectModelDirect } from './actions.ts'
+import { applyConfig } from './apply.ts'
+import { installComposerInput } from './composer.ts'
+import { normalizeConfig, type CustomThemeConfig, type ShortcutConfig } from './config.ts'
+import { resolvePreset } from './presets.ts'
+import {
+  buildShortcutMap, comboEnabled, isEditableTarget, matchesKeyCombo, parseKeyCombo,
+  type KeyCombo,
+} from './shortcuts.ts'
+import { UI_CUSTOM_SETTINGS_NS, type ModelShortcut, type ThemeSection, type UiCustomSection } from '../shared.ts'
+import { usageOverlay } from './usage-overlay.ts'
+import { NS, en, zh } from './locales.ts'
+import { USAGE_NS, en as usageEn, zh as usageZh } from './usage/usage-locales.ts'
+import { APPEARANCE_NS, en as appearanceEn, zh as appearanceZh } from './appearance/appearance-locales.ts'
+import { ShortcutsSettingsController, type ShortcutsSettingsInjected } from './settings/contract.ts'
+import { ShortcutsSection } from './settings/ShortcutsSection.tsx'
+import { AppearanceSettingsController, type AppearanceInjected } from './appearance/controller.ts'
+import { AppearanceSection } from './appearance/AppearanceSection.tsx'
+import { PreviewBar, type PreviewBarInjected } from './appearance/PreviewBar.tsx'
+import { previewBar } from './preview-bar.ts'
+import { UsageSection } from './usage/UsageSection.tsx'
+import { UsageOverlay } from './usage/UsageOverlay.tsx'
+import type { UsageInjected, UsageOverlayInjected } from './usage/contract.ts'
+import { MARKETPLACE_NS, en as marketEn, zh as marketZh } from './marketplace/marketplace-locales.ts'
+import { DEFAULT_MARKETPLACE_URL, deriveMarketplaceSources } from './marketplace/manifest.ts'
+import { MarketplaceController, type MarketplaceInjected } from './marketplace/controller.ts'
+import { MarketplaceTab } from './marketplace/MarketplaceTab.tsx'
+import { configFromThemeSection } from './theme-section.ts'
+import { HISTORY_NS, zh as historyZh, en as historyEn } from './history/history-locales.ts'
+import { HistoryStrip, type HistoryStripInjected } from './history/HistoryStrip.tsx'
+import { HistoryPositionRow, type HistoryPositionRowInjected } from './history/HistoryPositionRow.tsx'
+import { HistoryLimitRow, type HistoryLimitRowInjected } from './history/HistoryLimitRow.tsx'
+import { PIN_NS, zh as pinZh, en as pinEn } from './pin/pin-locales.ts'
+import { PinTurnAction } from './pin/PinTurnAction.tsx'
+import type { PinTurnInjected } from './pin/contract.ts'
+import { MARKDOWN_NS, zh as markdownZh, en as markdownEn } from './markdown/markdown-locales.ts'
+import { MarkdownRenderRow, type MarkdownRenderRowInjected } from './markdown/MarkdownRenderRow.tsx'
+import { UserMarkdownNodeView, type MarkdownRenderInjected } from './markdown/UserMarkdownNodeView.tsx'
+import './custom.module.css'
+
+export type { CustomThemeConfig } from './config.ts'
+export type { ThemePreset } from './presets.ts'
+export { DEFAULTS, CONFIG_KEYS, SHORTCUT_DEFAULTS, SHORTCUT_ACTIONS, normalizeConfig, clampNumber, cleanString } from './config.ts'
+export { PRESETS, PRESET_MAP, resolvePreset } from './presets.ts'
+export { parseKeyCombo, matchesKeyCombo, buildShortcutMap, keyToToken, specFromEvent } from './shortcuts.ts'
+export { switchModel, cycleThinking, newConversation, selectModelDirect, modelCatalogOptions } from './actions.ts'
+
+/** Required services: theme (none extra), shortcuts (connection/sessions/workspaces), settings UI (slots/locale/settingsScope), marketplace (remote inventory), history (layout). */
+export const inject = ['slots', 'locale', 'connection', 'sessions', 'workspaces', 'settingsScope', 'remote', 'remote.pluginInventory', 'layout']
+
+/**
+ * Install the keydown listener for the dispatcher actions. All bindings share
+ * one capture-phase listener; the first action whose combo matches wins and
+ * the event is consumed. Standard actions dispatch first, then the one-to-one
+ * model shortcuts (each combo jumps to its specific model). Re-installable:
+ * returns the disposer.
+ * @param ctx - client root context (for action dispatch).
+ * @param shortcuts - normalized shortcut config.
+ * @returns the disposer removing the listener.
+ */
+function installShortcuts(ctx: ClientContext, shortcuts: ShortcutConfig): () => void {
+  const combos = buildShortcutMap(shortcuts)
+  // Only dispatcher actions dispatch; sendMessage/newline are composer remaps.
+  const actions = Object.keys(SHORTCUT_HANDLERS) as (keyof typeof SHORTCUT_HANDLERS)[]
+  const modelShortcuts = shortcuts.modelShortcuts
+    .map(entry => ({ entry, combo: parseKeyCombo(entry.combo) }))
+    .filter((item): item is { entry: ModelShortcut; combo: KeyCombo } => item.combo !== null)
+  const enabled = actions.some((action) => comboEnabled(combos[action])) || modelShortcuts.length > 0
+  if (!enabled) return () => {}
+  const handler = (event: KeyboardEvent): void => {
+    // Don't hijack plain typing: combos without Mod are suppressed while an
+    // editable field has focus; Mod combos still fire.
+    if (isEditableTarget(event.target) && !(event.ctrlKey || event.metaKey)) return
+    for (const action of actions) {
+      const combo = combos[action]
+      if (combo === null || !matchesKeyCombo(combo, event)) continue
+      event.preventDefault()
+      event.stopPropagation()
+      const handler = SHORTCUT_HANDLERS[action]
+      if (handler === undefined) continue
+      void Promise.resolve(handler(ctx, shortcuts)).catch(() => { /* action failure is silent */ })
+      return
+    }
+    for (const { entry, combo } of modelShortcuts) {
+      if (!matchesKeyCombo(combo, event)) continue
+      event.preventDefault()
+      event.stopPropagation()
+      void Promise.resolve(selectModelDirect(ctx, entry.provider, entry.model)).catch(() => { /* action failure is silent */ })
+      return
+    }
+  }
+  window.addEventListener('keydown', handler, true)
+  return () => window.removeEventListener('keydown', handler, true)
+}
+
+/**
+ * Client plugin body: apply the theme, install shortcuts (loader config
+ * merged with the runtime settings section), and register the settings page.
+ * @param ctx - client root context.
+ * @param config - profile-level plugin config (partial over the preset).
+ */
+export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): void {
+  const presetId = typeof config?.preset === 'string' ? config.preset : ''
+  const normalized = normalizeConfig(config, resolvePreset(presetId))
+  applyConfig(normalized)
+
+  // Native widgets (range tracks, select dropdown panels, color pickers) are
+  // drawn from the root color-scheme. The shell sets it once at boot from the
+  // OS preference and never re-syncs it to the app theme, so keep it pinned to
+  // the ACTIVE theme (body[data-ds-dark-theme]) here — otherwise a light theme
+  // on a dark OS leaves black slider tracks, and a dark theme on a light OS
+  // leaves white dropdown panels.
+  ctx.effect(() => {
+    const syncColorScheme = (): void => {
+      const dark = document.body.hasAttribute('data-ds-dark-theme')
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+    }
+    syncColorScheme()
+    const observer = new MutationObserver(syncColorScheme)
+    observer.observe(document.body, { attributes: true, attributeFilter: ['data-ds-dark-theme'] })
+    return () => { observer.disconnect() }
+  }, 'ui-custom: color-scheme follows the active theme')
+
+  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-custom: section dictionaries')
+  ctx.effect(() => ctx.locale.register(USAGE_NS, { zh: usageZh, en: usageEn }), 'ui-custom: usage dictionaries')
+  ctx.effect(
+    () => ctx.locale.register(APPEARANCE_NS, { zh: appearanceZh, en: appearanceEn }),
+    'ui-custom: appearance dictionaries',
+  )
+  ctx.effect(
+    () => ctx.locale.register(MARKETPLACE_NS, { zh: marketZh, en: marketEn }),
+    'ui-custom: marketplace dictionaries',
+  )
+  ctx.effect(
+    () => ctx.locale.register(HISTORY_NS, { zh: historyZh, en: historyEn }),
+    'ui-custom: history dictionaries',
+  )
+  ctx.effect(
+    () => ctx.locale.register(PIN_NS, { zh: pinZh, en: pinEn }),
+    'ui-custom: pin dictionaries',
+  )
+  ctx.effect(
+    () => ctx.locale.register(MARKDOWN_NS, { zh: markdownZh, en: markdownEn }),
+    'ui-custom: markdown dictionaries',
+  )
+  const t = ctx.locale.bind(NS)
+  const usageT = ctx.locale.bind(USAGE_NS)
+  const appearanceT = ctx.locale.bind(APPEARANCE_NS)
+  const marketplaceT = ctx.locale.bind(MARKETPLACE_NS)
+
+  // ── Theme: loader defaults + runtime settings section (live) ───────────
+  const scope = ctx.settingsScope.bind<UiCustomSection>({ namespace: UI_CUSTOM_SETTINGS_NS })
+  const applyTheme = (): void => {
+    const snapshot = scope.getSnapshot()
+    // darkSurfaceOpacity is an explicit override only when the RAW user layer
+    // carries it; otherwise the dark main surface follows the live
+    // surfaceOpacity (theme-section.ts falls back to section.surfaceOpacity).
+    const user = snapshot.user
+    const explicitDark = typeof user === 'object' && user !== null && 'darkSurfaceOpacity' in user
+    let effective: ThemeSection | undefined
+    if (snapshot.value === undefined) {
+      effective = undefined
+    } else if (explicitDark) {
+      effective = snapshot.value
+    } else {
+      const { darkSurfaceOpacity: _inherited, ...rest } = snapshot.value
+      effective = { ...rest, darkSurfaceOpacity: undefined }
+    }
+    applyConfig(configFromThemeSection(normalized, effective))
+  }
+  applyTheme()
+  ctx.effect(() => scope.subscribe(applyTheme), 'ui-custom: theme settings sync')
+
+  // ── Shortcuts: loader defaults + runtime settings section ──────────────
+  let disposeShortcuts: (() => void) | undefined
+  const applyShortcuts = (): void => {
+    disposeShortcuts?.()
+    const section = scope.getSnapshot().value
+    const shortcuts: ShortcutConfig = {
+      newConversation: section?.newConversation ?? normalized.shortcuts.newConversation,
+      switchModel: section?.switchModel ?? normalized.shortcuts.switchModel,
+      cycleThinking: section?.cycleThinking ?? normalized.shortcuts.cycleThinking,
+      sendMessage: section?.sendMessage ?? normalized.shortcuts.sendMessage,
+      newline: section?.newline ?? normalized.shortcuts.newline,
+      usagePanel: section?.usagePanel ?? normalized.shortcuts.usagePanel,
+      defaultWorkspace: section?.defaultWorkspace ?? normalized.shortcuts.defaultWorkspace,
+      modelShortcuts: section?.modelShortcuts ?? normalized.shortcuts.modelShortcuts,
+    }
+    const disposeActions = installShortcuts(ctx, shortcuts)
+    const disposeComposer = installComposerInput(shortcuts)
+    disposeShortcuts = () => {
+      disposeActions()
+      disposeComposer()
+    }
+  }
+  applyShortcuts()
+  ctx.effect(() => scope.subscribe(applyShortcuts), 'ui-custom: shortcut settings sync')
+  ctx.effect(() => () => disposeShortcuts?.(), 'ui-custom: shortcut listener teardown')
+
+  // ── Settings sections: 快捷键 / 外观 / 应用用量 ─────────────────────────
+  const controller = new ShortcutsSettingsController(
+    scope,
+    normalized.shortcuts,
+    () => modelCatalogOptions(ctx),
+  )
+  const { dispose: disposeScope, actions } = controller.mount()
+  ctx.effect(() => () => disposeScope(), 'ui-custom: shortcut settings scope')
+  // Refresh the model catalog when the current session changes (the shortcut
+  // targets address the current session's catalog).
+  void controller.refreshModels()
+  const unsubscribeModels = ctx.sessions.list.subscribe(() => { void controller.refreshModels() })
+  ctx.effect(() => () => unsubscribeModels(), 'ui-custom: model catalog sync')
+  ctx.slots.inject('settings.section', () => ctx.slots.register({
+    name: 'settings.section',
+    id: 'shortcuts',
+    order: 20,
+    label: () => t('nav'),
+    locale: NS,
+    inject: (): ShortcutsSettingsInjected => ({
+      hooks: {
+        shortcuts: controller.store,
+        workspaces: ctx.workspaces.list,
+        models: controller.models,
+      },
+      ...actions,
+    }),
+  }, ShortcutsSection))
+
+  // The 外观 section: hosts the theme-preference row (ui-theme, merged via the
+  // settings.appearance.item child slot) plus the art-customization form.
+  // Preview renders the staged draft to the document WITHOUT touching the
+  // scope, so the user decides (save / cancel) after seeing the effect.
+  const appearance = new AppearanceSettingsController(
+    scope,
+    normalized,
+    (config) => applyConfig(config),
+  )
+  const { dispose: disposeAppearance, actions: appearanceActions } = appearance.mount()
+  ctx.effect(() => () => disposeAppearance(), 'ui-custom: appearance settings scope')
+  ctx.slots.inject('settings.section', () => ctx.slots.register({
+    name: 'settings.section',
+    id: 'appearance',
+    order: 10,
+    label: () => appearanceT('nav'),
+    locale: APPEARANCE_NS,
+    children: { 'settings.appearance.item': { kind: 'list', scope: 'root' } },
+    inject: (): AppearanceInjected => ({
+      hooks: { appearance: appearance.store },
+      ...appearanceActions,
+    }),
+  }, AppearanceSection))
+
+  ctx.slots.inject('settings.section', () => ctx.slots.register({
+    name: 'settings.section',
+    id: 'usage',
+    order: 25,
+    label: () => usageT('nav'),
+    locale: USAGE_NS,
+    inject: (): UsageInjected => ({ hooks: { sessions: ctx.sessions.list } }),
+  }, UsageSection))
+  ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    name: 'shell.overlay',
+    id: 'ui-custom-usage',
+    order: 100,
+    locale: USAGE_NS,
+    inject: (): UsageOverlayInjected => ({
+      hooks: { sessions: ctx.sessions.list, usageVisible: usageOverlay },
+    }),
+  }, UsageOverlay))
+
+  // ── Preview hint: clean "Esc to exit" pill while the draft is previewed ───
+  // Esc exits preview mode and reopens the settings page (the settings shell
+  // keeps its open state component-local, so the only programmatic opener is
+  // the sidebar trigger — located by its dialog aria + localized label — then
+  // the appearance nav row, so the user lands back on the tweaks).
+  const reopenSettings = (): void => {
+    const triggers = document.querySelectorAll<HTMLElement>('[aria-haspopup="dialog"]')
+    for (const trigger of triggers) {
+      const label = trigger.textContent ?? ''
+      if (label.includes('设置') || label.includes('Settings') || label.includes('設定')) {
+        trigger.click()
+        break
+      }
+    }
+    window.setTimeout(() => {
+      const rows = document.querySelectorAll<HTMLElement>('button')
+      for (const row of rows) {
+        const text = (row.textContent ?? '').trim()
+        if (text === '外观' || text === 'Appearance' || text === '外觀') {
+          row.click()
+          return
+        }
+      }
+    }, 60)
+  }
+  ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    name: 'shell.overlay',
+    id: 'ui-custom-preview',
+    order: 90,
+    locale: APPEARANCE_NS,
+    inject: (): PreviewBarInjected => ({
+      hooks: { previewVisible: previewBar },
+      onExit: () => { previewBar.hide(); reopenSettings() },
+    }),
+  }, PreviewBar))
+
+  // ── Plugin marketplace tab (设置 → 插件 → 插件市场) ──────────────────────
+  // Manifest sources + the discovery switch come from the ui-custom settings
+  // namespace: the host seeds the loader config's marketplaceUrl /
+  // discoverGitHub into the scope base, and the client reads them here (the
+  // client apply() never receives the loader config — client graph rows carry
+  // no config). Unset falls back to the shipped default URL;
+  // deriveMarketplaceSources expands repo URLs and multi-source lists.
+  const marketplace = new MarketplaceController(
+    async () => {
+      const result = await ctx.remote.pluginInventory.list()
+      if (!result.ok) return []
+      return result.value.entries.map((entry) => entry.moduleName)
+    },
+    () => {
+      const setting = scope.getSnapshot().value?.marketplaceUrl
+      return deriveMarketplaceSources(
+        setting !== undefined && setting.trim() !== '' ? setting : DEFAULT_MARKETPLACE_URL,
+      )
+    },
+    () => scope.getSnapshot().value?.discoverGitHub ?? false,
+    () => scope.getSnapshot().value?.discoverSort === 'date' ? 'date' : 'stars',
+    () => {
+      const raw = scope.getSnapshot().value?.discoverLimit
+      return typeof raw === 'number' && Number.isFinite(raw) ? Math.min(100, Math.max(1, Math.round(raw))) : 30
+    },
+  )
+  // Re-fetch only when the marketplace settings resolve or change (a late
+  // scope resolution, or a config edit) — not on unrelated settings changes.
+  let lastMarketplaceKey: string | undefined
+  const applyMarketplace = (): void => {
+    const section = scope.getSnapshot().value
+    const key = `${section?.marketplaceUrl ?? ''}|${section?.discoverGitHub ?? false}|${section?.discoverSort ?? 'stars'}|${section?.discoverLimit ?? 30}`
+    if (key === lastMarketplaceKey) return
+    lastMarketplaceKey = key
+    void marketplace.refresh()
+  }
+  ctx.effect(() => scope.subscribe(applyMarketplace), 'ui-custom: marketplace source sync')
+  ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
+    name: 'settings.plugins.tab',
+    id: 'marketplace',
+    order: 30,
+    label: () => marketplaceT('tab'),
+    locale: MARKETPLACE_NS,
+    inject: (): MarketplaceInjected => ({
+      ...marketplace.mount(),
+      setDiscoverSort: (sort) => { void scope.set('discoverSort', sort) },
+      setDiscoverLimit: (limit) => { void scope.set('discoverLimit', limit) },
+    }),
+  }, MarketplaceTab))
+
+  // ── Conversation history: wave strip blended into the conversation ────────
+  // Registered in the details slot, which stays mounted even at zero width
+  // (the frame never unmounts it). The panel renders `position: fixed`
+  // content floating over the conversation's right edge — so the history is
+  // part of the body (ZCode-style), with no separate column and no toggle.
+  ctx.slots.inject('details', () => ctx.slots.register({
+    name: 'details',
+    priority: -1,
+    locale: HISTORY_NS,
+    inject: (sessionId: SessionId): HistoryStripInjected => ({
+      // The history pages the mounted window backwards until the full
+      // conversation is loaded, so old sessions show a complete strip.
+      loadOlder: () => {
+        void ctx.sessions.binding(sessionId)?.session.loadOlder()
+      },
+      sessionId,
+      hooks: { historyLimit: scope, historyPosition: scope, pinnedTurns: scope },
+    }),
+  }, HistoryStrip))
+
+  // ── Pin ("悬挂"): pin a turn to the history strip ────────────────────────
+  // The assistant-actions row (between copy and branch) carries the toggle;
+  // pinned turns ignore the strip's count limit and show with the accent
+  // frame. The button hides itself while the strip is disabled ('off').
+  ctx.slots.inject('conversation.chat.assistant-actions', () => ctx.slots.register({
+    name: 'conversation.chat.assistant-actions',
+    id: 'ui-custom-pin',
+    order: 5,
+    locale: PIN_NS,
+    inject: (sessionId: SessionId): PinTurnInjected => {
+      const togglePin = (turn: number): void => {
+        const record = scope.getSnapshot().value?.pinnedTurns ?? {}
+        const current = record[sessionId] ?? []
+        const next = current.includes(turn)
+          ? current.filter(n => n !== turn)
+          : [...current, turn].sort((a, b) => a - b)
+        const updated = { ...record }
+        if (next.length === 0) delete updated[sessionId]
+        else updated[sessionId] = next
+        // Keep the settings document tidy: no pins at all → drop the field.
+        if (Object.keys(updated).length === 0) void scope.unset('pinnedTurns')
+        else void scope.set('pinnedTurns', updated)
+      }
+      return {
+        sessionId,
+        hooks: { position: scope, pinnedTurns: scope },
+        togglePin,
+      }
+    },
+  }, PinTurnAction))
+
+  // General-settings rows: where the strip sits (or hidden), then how many
+  // recent turns it shows — the count row only renders while not 'off'.
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item',
+    id: 'ui-custom-history-position',
+    order: 40,
+    locale: HISTORY_NS,
+    inject: (): HistoryPositionRowInjected => ({
+      hooks: { historyPosition: scope },
+      setHistoryPosition: (position) => { void scope.set('historyPosition', position) },
+    }),
+  }, HistoryPositionRow))
+
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item',
+    id: 'ui-custom-history-limit',
+    order: 50,
+    locale: HISTORY_NS,
+    inject: (): HistoryLimitRowInjected => ({
+      hooks: { historyLimit: scope },
+      setHistoryLimit: (limit) => { void scope.set('historyLimit', limit) },
+    }),
+  }, HistoryLimitRow))
+
+  // General-settings row: whether the user's own messages render as Markdown.
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item',
+    id: 'ui-custom-md-render',
+    order: 55,
+    locale: MARKDOWN_NS,
+    inject: (): MarkdownRenderRowInjected => ({
+      hooks: { mdRender: scope },
+      setRenderUserMarkdown: (enabled) => { void scope.set('renderUserMarkdown', enabled) },
+    }),
+  }, MarkdownRenderRow))
+
+  // Shadow the user/steering chat cells (priority -1 wins over the stock
+  // renderer): the bubble renders the text as Markdown while the toggle is on,
+  // and falls back to the stock plain-text look when off.
+  ctx.slots.inject('conversation.chat.node', () => ctx.slots.register({
+    name: 'conversation.chat.node',
+    key: 'user',
+    priority: -1,
+    locale: 'conversation',
+    inject: (): MarkdownRenderInjected => ({ hooks: { mdRender: scope } }),
+  }, UserMarkdownNodeView))
+  ctx.slots.inject('conversation.chat.node', () => ctx.slots.register({
+    name: 'conversation.chat.node',
+    key: 'steering',
+    priority: -1,
+    locale: 'conversation',
+    inject: (): MarkdownRenderInjected => ({ hooks: { mdRender: scope } }),
+  }, UserMarkdownNodeView))
+
+  // Type-reference the connection face so its injection is tracked (used by actions).
+  void (ctx.get('connection') as ConnectionHandle)
+}

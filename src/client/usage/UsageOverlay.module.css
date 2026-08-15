@@ -1,0 +1,63 @@
+/* Usage overlay (快捷键呼出): the panel matches the settings dialog's own
+   surface — solid layer-2 elevation with the shared mask — so the shortcut
+   view reads exactly like 设置 → 应用用量 instead of a translucent float. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: var(--dsw-alias-bg-mask-1);
+}
+
+.panel {
+  width: min(680px, 100%);
+  max-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-bg-layer-2);
+  box-shadow: var(--dsw-shadow-lv3);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+}
+
+.title {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.close {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 16px;
+  line-height: 28px;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.body {
+  padding: 16px 18px 18px;
+  overflow-y: auto;
+}

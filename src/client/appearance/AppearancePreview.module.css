@@ -1,0 +1,148 @@
+/* 实时预览缩略图：迷你界面 mock，随外观草稿实时变化。
+   Surfaces 用 --pv-* 自定义属性（组件内联写入）；暗色模式下通过
+   body[data-ds-dark-theme] 变体把基底换成深色中性色。 */
+
+.mock {
+  --pv-base: var(--dsw-static-neutral-bluish-00);
+  position: relative;
+  height: 128px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background-color: color-mix(in srgb, var(--pv-base) 60%, transparent);
+  background-size: cover;
+  background-position: center;
+}
+
+/* 暗色模式下表面基底换为深色中性色（与真实主题一致）。 */
+body[data-ds-dark-theme] .mock {
+  --pv-base: var(--dsw-static-neutral-bluish-950);
+}
+
+/* 深色遮罩：仅暗色模式叠加（透明度 = 草稿的 暗色遮罩 值）。 */
+.scrim {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgb(15 17 21 / var(--pv-scrim, 22%));
+}
+
+body[data-ds-dark-theme] .scrim {
+  display: block;
+}
+
+.window {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  line-height: 1.4;
+  font-family: var(--dsw-font-family, system-ui, sans-serif);
+}
+
+.sidebar {
+  flex: none;
+  width: 22%;
+  padding: 8px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-right: 1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 60%, transparent);
+}
+
+.navDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-bottom: 2px;
+}
+
+.line {
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--dsw-alias-label-tertiary) 55%, transparent);
+}
+
+.navActive {
+  height: 10px;
+  border-radius: 3px;
+  opacity: 0.85;
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.title {
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.chat {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 55%, transparent);
+}
+
+.bubbleLeft {
+  width: 78%;
+  height: 7px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--dsw-alias-label-tertiary) 32%, transparent);
+}
+
+.bubbleRight {
+  align-self: flex-end;
+  width: 55%;
+  height: 7px;
+  border-radius: 4px;
+  border: 1px solid;
+  opacity: 0.85;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inputField {
+  flex: 1 1 auto;
+  height: 14px;
+  border-radius: 5px;
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-border-l2) 60%, transparent);
+}
+
+.send {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}

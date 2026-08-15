@@ -1,0 +1,575 @@
+/* Appearance section styles: glass form rows over the frosted wallpaper. */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.intro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+/* The ui-theme preference row (merged from General) renders in its own block. */
+.preference {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 78%, transparent);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 78%, transparent);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Parameter-group card header: title + group reset action. */
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.groupReset {
+  flex: none;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 22px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.groupReset:hover:not(:disabled) {
+  border-color: var(--dsw-alias-brand-primary);
+  color: var(--dsw-alias-brand-primary);
+}
+
+.groupReset:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* 随机灵感: accent-outlined pill in the preview card header. */
+.inspire {
+  flex: none;
+  height: 24px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-brand-primary) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 10%, transparent);
+  color: var(--dsw-alias-brand-primary);
+  font-size: 11px;
+  line-height: 22px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.inspire:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 18%, transparent);
+}
+
+.inspire:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.label {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.hint {
+  grid-column: 2;
+  margin: -4px 0 0;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+/* Inline control groups (color swatch + hex text, etc.): the color block and
+   the text field sit on one baseline. */
+.slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.text {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: var(--dsw-specific-input-major);
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  line-height: 30px;
+  font-family: var(--ds-font-family-code, monospace);
+}
+
+/* The accent hex fields share the web UI font (code faces clash with the
+   interface); URL/CSS inputs keep the monospace stack. */
+.slider .text {
+  font-family: var(--dsw-font-family, system-ui, sans-serif);
+}
+
+.select {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: var(--dsw-specific-input-major);
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+}
+
+.color {
+  box-sizing: border-box;
+  width: 40px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+/* Fill the swatch box edge-to-edge so it lines up with the text field. */
+.color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color::-webkit-color-swatch {
+  border: none;
+}
+
+/* Range sliders: custom track + thumb with a distinct light/dark pair (the
+   native track does NOT follow color-scheme in this Chromium, so both modes
+   are drawn explicitly). The slid portion fills with the accent (--fill is
+   set inline per slider); light mode keeps a quiet light-gray rest, dark mode
+   uses a soft light overlay so the track stays visible without going pure
+   white. The thumb is an accent dot with a contrasting ring per mode. */
+.range {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--dsw-alias-brand-primary) var(--fill, 0%),
+    var(--dsw-static-neutral-bluish-300) var(--fill, 0%)
+  );
+  box-shadow: inset 0 0 0 1px rgb(15 17 21 / 0.05);
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--dsw-alias-brand-primary);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.28);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.range:hover::-webkit-slider-thumb,
+.range:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent), 0 1px 4px rgb(0 0 0 / 0.3);
+}
+
+.range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--dsw-static-neutral-bluish-300);
+}
+
+.range::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--dsw-alias-brand-primary);
+}
+
+.range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: var(--dsw-alias-brand-primary);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.28);
+}
+
+/* Dark mode: a soft light overlay instead of pure white — clearly visible
+   against the dark surface, less harsh. Thumb keeps a bright ring. */
+body[data-ds-dark-theme] .range::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--dsw-alias-brand-primary) var(--fill, 0%),
+    rgb(255 255 255 / 0.24) var(--fill, 0%)
+  );
+  box-shadow: none;
+}
+
+body[data-ds-dark-theme] .range::-moz-range-track {
+  background: rgb(255 255 255 / 0.24);
+}
+
+body[data-ds-dark-theme] .range::-webkit-slider-thumb,
+body[data-ds-dark-theme] .range::-moz-range-thumb {
+  border-color: rgb(255 255 255 / 0.9);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--dsw-alias-brand-primary) 55%, transparent), 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+.rangeValue {
+  flex: none;
+  width: 44px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox {
+  accent-color: var(--dsw-alias-brand-primary);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dirty {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.save {
+  height: 30px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--dsw-alias-button-primary-fill);
+  color: var(--dsw-alias-label-primary-foreground);
+  font-size: 13px;
+  line-height: 30px;
+  white-space: nowrap;
+  flex: none;
+  cursor: pointer;
+}
+
+.save:hover:not(:disabled) {
+  background: var(--dsw-alias-button-primary-hover);
+}
+
+.save:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.reset {
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 28px;
+  white-space: nowrap;
+  flex: none;
+  cursor: pointer;
+}
+
+.reset:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.reset:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.cardTitle {
+  margin: 0 0 2px;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+.presetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.presetCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 55%, transparent);
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.presetCard:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--dsw-alias-border-l3, var(--dsw-alias-border-l2));
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.18);
+}
+
+/* The preset the staged theme matches is framed with the accent color, so the
+   active theme is visible at a glance. */
+.presetCardActive,
+.presetCardActive:hover:not(:disabled) {
+  transform: none;
+  border-color: var(--dsw-alias-brand-primary);
+  box-shadow: 0 0 0 1px var(--dsw-alias-brand-primary), 0 6px 18px color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent);
+}
+
+.presetBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--dsw-alias-brand-primary);
+  color: var(--dsw-alias-label-primary-foreground);
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.presetCard:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.presetPreview {
+  display: block;
+  height: 52px;
+  flex: none;
+}
+
+.presetName {
+  padding: 0 10px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+.presetDesc {
+  padding: 0 10px 8px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.presetSaveRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.presetNameInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: var(--dsw-specific-input-major);
+  color: var(--dsw-alias-label-primary);
+  font-size: 12px;
+  line-height: 28px;
+}
+
+.presetSave {
+  flex: none;
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--dsw-alias-button-primary-fill);
+  color: var(--dsw-alias-label-primary-foreground);
+  font-size: 12px;
+  line-height: 28px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.presetSave:hover:not(:disabled) {
+  background: var(--dsw-alias-button-primary-hover);
+}
+
+.presetSave:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.presetRemove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--dsw-alias-bg-overlay) 85%, transparent);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 20px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.presetCard:hover .presetRemove,
+.presetCard:focus-within .presetRemove {
+  opacity: 1;
+}
+
+.presetRemove:hover {
+  color: var(--dsw-alias-label-primary);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.swatch {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.swatch:hover:not(:disabled) {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-brand-primary) 35%, transparent);
+}
+
+.swatch:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.previewing {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.preview {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 13px;
+  line-height: 28px;
+  white-space: nowrap;
+  flex: none;
+  cursor: pointer;
+}
+
+.preview:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.preview:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.cancel {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid var(--dsw-alias-state-warn-primary);
+  border-radius: 6px;
+  background: none;
+  color: var(--dsw-alias-state-warn-primary);
+  font-size: 13px;
+  line-height: 28px;
+  white-space: nowrap;
+  flex: none;
+  cursor: pointer;
+}
+
+.cancel:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 10%, transparent);
+}
+
+.cancel:disabled {
+  cursor: default;
+  opacity: 0.5;
+}

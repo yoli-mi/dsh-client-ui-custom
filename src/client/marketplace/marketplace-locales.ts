@@ -1,0 +1,75 @@
+/** Locale dictionaries for the plugin marketplace tab. */
+
+/** Dictionary namespace owned by the marketplace surface. */
+export const MARKETPLACE_NS = 'marketplace'
+
+/** All marketplace copy keys. */
+export type MarketplaceKey =
+  | 'tab' | 'title' | 'intro' | 'refresh' | 'refreshing' | 'empty'
+  | 'installed' | 'install' | 'copied' | 'source' | 'source.bundled' | 'source.remote'
+  | 'openOnGitHub' | 'installHint'
+  | 'error' | 'errorHint' | 'errorNetwork' | 'errorHttp' | 'errorInvalid'
+  | 'total' | 'sort' | 'sort.stars' | 'sort.date' | 'limit'
+
+/** Simplified Chinese copy. */
+export const zh: Record<MarketplaceKey, string> = {
+  tab: '插件市场',
+  title: '插件市场',
+  intro: '从 GitHub 发现并安装 DSH 第三方插件（DeepSeek 内置包已在 roster 中，不在此列出）。市场默认自动发现带 dsh-plugin 主题的 GitHub 插件仓库（按星标排序）；也可以在 marketplaceUrl 里配置你的清单地址，或直接填写 GitHub 仓库地址——仓库没有 marketplace.json 时会自动读取其信息生成条目。点击「安装」复制安装配置到剪贴板，粘贴到 profile 补丁文件后即自动生效（无需重启）。',
+  refresh: '刷新',
+  refreshing: '刷新中…',
+  empty: '暂无插件。可以在 marketplaceUrl 里填写 GitHub 仓库地址（自动探测 marketplace.json，缺失时读取仓库信息），或发布 marketplace.json 清单。',
+  installed: '已安装',
+  install: '安装',
+  copied: '已复制，请粘贴到补丁文件',
+  source: '来源',
+  'source.bundled': '内置清单',
+  'source.remote': 'GitHub',
+  openOnGitHub: 'GitHub 源码',
+  installHint: '把复制的 YAML 追加到 ~/.dsh/profiles/web/cordis.patch.yml（该文件被实时监听，保存即生效）。',
+  error: '清单加载失败',
+  errorHint: '无法从任何配置的地址加载插件清单。请检查插件配置里的 marketplaceUrl：支持多个地址（用逗号或换行分隔），也可以直接填写 GitHub 仓库地址（自动探测 marketplace.json，缺失时读取仓库信息）；确认后重新点击刷新。',
+  errorNetwork: '网络错误',
+  errorHttp: 'HTTP 错误',
+  errorInvalid: '清单格式无效',
+  total: 'GitHub 插件总数',
+  sort: '排序',
+  'sort.stars': '按星标',
+  'sort.date': '按发布日期',
+  limit: '显示数量',
+}
+
+/** English copy. */
+export const en: Record<MarketplaceKey, string> = {
+  tab: 'Marketplace',
+  title: 'Plugin Marketplace',
+  intro: 'Discover and install third-party DSH plugins from GitHub (DeepSeek built-ins already ship in the roster and are not listed here). The market auto-discovers GitHub plugin repos tagged with the dsh-plugin topic (sorted by stars); you can also point marketplaceUrl at your own manifest, or paste a plain GitHub repo URL — a repo without marketplace.json is resolved from its repo metadata automatically. Click Install to copy the install snippet; paste it into the profile patch file and it applies live (no restart).',
+  refresh: 'Refresh',
+  refreshing: 'Refreshing…',
+  empty: 'No plugins yet. Put a GitHub repo URL in marketplaceUrl (its marketplace.json is probed, falling back to the repo metadata), or publish a marketplace.json manifest.',
+  installed: 'Installed',
+  install: 'Install',
+  copied: 'Copied — paste into the patch file',
+  source: 'Source',
+  'source.bundled': 'Bundled catalog',
+  'source.remote': 'GitHub',
+  openOnGitHub: 'Source on GitHub',
+  installHint: 'Append the copied YAML to ~/.dsh/profiles/web/cordis.patch.yml (the file is watched; saving applies it live).',
+  error: 'Catalog failed to load',
+  errorHint: 'None of the configured sources produced a catalog. Check marketplaceUrl in the plugin config: multiple addresses are supported (comma or newline separated), and a plain GitHub repo URL is probed for marketplace.json, falling back to the repo metadata. Fix it, then refresh again.',
+  errorNetwork: 'Network error',
+  errorHttp: 'HTTP error',
+  errorInvalid: 'Invalid manifest',
+  total: 'GitHub plugins total',
+  sort: 'Sort',
+  'sort.stars': 'By stars',
+  'sort.date': 'By publish date',
+  limit: 'Show count',
+}
+
+declare module '@deepseek-ai/dsh-client-ui-slots' {
+  interface LocaleNamespaceMap {
+    /** The plugin marketplace tab copy. */
+    marketplace: MarketplaceKey
+  }
+}

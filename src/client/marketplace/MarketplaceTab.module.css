@@ -1,0 +1,254 @@
+/* Plugin marketplace tab styles: glass cards, badges, install button. */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.intro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.source {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selector {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 7px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 28px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selector:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.chevron {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.refresh {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 7px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 28px;
+  cursor: pointer;
+}
+
+.refresh:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 78%, transparent);
+}
+
+.body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.name {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+.badge {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--dsw-alias-state-success-primary);
+  background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent);
+}
+
+.pkg {
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.description {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.hint {
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.actions {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.github {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 7px;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 26px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+
+.github:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.install {
+  height: 28px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 7px;
+  background: var(--dsw-alias-button-primary-fill);
+  color: var(--dsw-alias-label-primary-foreground);
+  font-size: 12px;
+  line-height: 28px;
+  cursor: pointer;
+}
+
+.install:hover {
+  background: var(--dsw-alias-button-primary-hover);
+}
+
+.installInstalled {
+  background: none;
+  border: 1px solid var(--dsw-alias-border-l2);
+  color: var(--dsw-alias-state-success-primary);
+  cursor: default;
+}
+
+.copied {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--dsw-alias-state-warn-primary);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 8%, transparent);
+}
+
+.errorTitle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.errorHint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.errorList {
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.errorItem {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.errorUrl {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.errorCode {
+  flex: none;
+  color: var(--dsw-alias-label-secondary);
+}

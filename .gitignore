@@ -1,0 +1,12 @@
+# Dependencies and build caches
+node_modules/
+*.tsbuildinfo
+
+# Logs and OS noise
+*.log
+.DS_Store
+Thumbs.db
+
+# Local env files
+.env
+.env.local
