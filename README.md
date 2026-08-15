@@ -38,7 +38,7 @@ Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配�
 新增的设置页，提供完整的主题定制空间：壁纸、玻璃档位、强调色（可自动从
 壁纸取色）、各表面不透明度、色调渐变、暗色遮罩、字体与字号、主题色滚动条
 与内嵌晕影，并把 ui-theme 的**主题偏好**（浅色 / 深色 / 跟随系统）合并进本
-栏。改动通过 `ui-custom` settings 命名空间保存并**即时生效**（主题实quanp时重渲染，
+栏。改动通过 `ui-custom` settings 命名空间保存并**即时生效**（主题实时重渲染，
 无需重启）。
 
 **预览**—— 主题定制支持小窗预览。
@@ -50,7 +50,7 @@ Dsh-client-ui-custom 是一个纯前端客制化插件：运行时把一份配�
 <img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-fullscreen.png" width="900" alt="全屏预览">
 
 
-**预设（Preset）** —— 插件内置了六种预设，每个预设都有独立的的风格（预设可独立生效，你自己的 `wallpaper` 仍会叠加在它之下），：
+**预设（Preset）** —— 插件内置了六种预设，每个预设都有独立的风格（预设可独立生效，你自己的 `wallpaper` 仍会叠加在它之下）：
 
 | id | 名称 | 风格 |
 | --- | --- | --- |
