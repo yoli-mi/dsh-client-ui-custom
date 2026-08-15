@@ -1,4 +1,4 @@
-# @deepseek-ai/dsh-client-ui-custom
+# Dsh-client-ui-custom
 
 Configurable web-surface theming for **any** dsh web profile — no shell edits.
 
