@@ -24,8 +24,8 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 插件由六个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
 `usage`（用量统计）、`history`（历史记录条）、`markdown`（用户消息 Markdown
-渲染）、`marketplace`（插件市场）。在插件配置里用 `features` 白名单选择要安装的
-功能，未列出的功能**完全不挂载**（没有对应的设置页，也没有任何界面改动）：
+渲染）、`marketplace`（插件市场）。可在插件配置里用 `features` 白名单选择要安装的
+功能：
 
 ```yaml
 - id: ui-custom
@@ -34,7 +34,7 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
     features: [shortcuts, usage]   # 只安装「快捷键」+「用量统计」
 ```
 
-`features` 缺省或为空时，六个功能全部启用（与旧版本行为一致）。
+`features` 缺省或为空时，六个功能全部启用。
 
 ### 设置改动一览
 
