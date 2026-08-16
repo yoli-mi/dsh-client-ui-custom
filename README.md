@@ -281,26 +281,25 @@ packages/client/ui-custom/
 
 ### Overview
 
-Dsh-client-ui-custom is a pure front-end customization plugin: at runtime it
-turns one config into theme overrides, and it extends the **Settings** surface
-in three ways:
+Dsh-client-ui-custom is a pure front-end plugin that provides a floating
+history strip, user-message Markdown rendering, appearance customization,
+a plugin marketplace, keyboard shortcuts, and usage statistics.
 
 - **Adds to General settings** — new rows under Settings → General for the
-  floating history strip (position / count) and user-message Markdown rendering,
-  plus a special usability tweak for the strip (a chosen turn can be "hung" on it);
-- **Adds to Plugin settings** — a new "Plugin Marketplace" tab under Settings → Plugins;
+  floating history strip (position / count) and the user-message Markdown
+  rendering toggle;
+- **Adds to Plugin settings** — a new "Plugin Marketplace" under Settings → Plugins;
 - **Adds three new settings pages** — Appearance, Shortcuts, and Usage statistics.
 
-Everything ships neutral and off by default: without configuration the UI is
-byte-for-byte stock, and no shell source is ever modified.
+All features are off by default; without configuration the UI stays identical
+to stock, with zero shell modifications.
 
 ### Feature selection (install on demand)
 
 The plugin is composed of six **independent** feature modules: `appearance`,
-`shortcuts`, `usage`, `history` (history strip), `markdown` (user-message
-Markdown), and `marketplace`. Use the `features` whitelist in the plugin
-config to choose which to mount; unlisted features never register (no settings
-page, no DOM changes):
+`shortcuts`, `usage` (usage statistics), `history` (history strip), `markdown`
+(user-message Markdown rendering), and `marketplace` (plugin marketplace). Use
+the `features` whitelist in the plugin config to choose which to install:
 
 ```yaml
 - id: ui-custom
@@ -309,22 +308,9 @@ page, no DOM changes):
     features: [shortcuts, usage]   # install only shortcuts + usage stats
 ```
 
-When `features` is absent or empty, all six features mount (same behavior as
-before).
+When `features` is absent or empty, all six features are enabled.
 
-**Feature linkage** — there are only two cross-feature behaviors, and both only
-kick in when **both** related modules are installed:
-
-- **Shortcuts × usage stats**: the "usage panel" binding in the Shortcuts
-  settings only works when both `shortcuts` and `usage` are mounted. With
-  `shortcuts` only, that row is hidden from the settings page and any
-  configured binding never fires (reinstall `usage` and it comes back — no
-  reconfiguration needed).
-- **History strip × appearance**: a pinned conversation's accent border uses
-  the appearance module's accent when available, and otherwise falls back to
-  the stock brand accent — it never breaks without `appearance`.
-
-No other cross-module dependencies exist; any combination is safe.
+---
 
 ### Settings at a glance
 
@@ -332,7 +318,7 @@ No other cross-module dependencies exist; any combination is safe.
 | --- | --- | --- |
 | Settings → Appearance | new page | custom theming: wallpaper, glass, accent, surface opacity, fonts & texture |
 | Settings → Shortcuts | new page | custom keybindings: new conversation, model switch, thinking effort, direct model jumps, etc. |
-| Settings → App Usage | new page | usage stats: aggregated over four windows, with a trend chart and session ranking |
+| Settings → App Usage | new page | usage stats: aggregated over a selectable time span, with a trend chart and session ranking |
 | Settings → General | added rows | floating history strip (adjustable position / count), user-message Markdown toggle |
 | Settings → Plugins | added tab | "Plugin Marketplace": third-party plugin catalog |
 
@@ -340,18 +326,19 @@ No other cross-module dependencies exist; any combination is safe.
 
 ### Appearance (Settings → Appearance)
 
-A new settings page with a full theming space: wallpaper, glass level, accent
-color (auto-extracted from the wallpaper), per-surface opacities, tone gradient,
-dark scrim, fonts & scale, accent scrollbar and vignette — plus the merged
-**theme preference** (light / dark / system) that ui-theme contributes to
-this section. Changes save through the `ui-custom` settings namespace and
-**apply immediately** (the theme re-renders live, no restart).
+Appearance offers a large customization space: you can choose the wallpaper,
+glass level, accent color (optionally auto-derived from the wallpaper),
+per-surface opacities, tone gradient, dark scrim, fonts & scale, accent
+scrollbar and an inset vignette, and merge the ui-theme **theme preference**
+(light / dark / system) into this section. Changes save through the
+`ui-custom` settings namespace and **apply immediately** (the theme re-renders
+live, no restart).
 
 **Preview** — the theme supports a mini-window preview.
 
 <img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-mini.png" width="720" alt="Mini preview">
 
-It also supports fullscreen preview — press F2 to exit.
+Fullscreen preview is also supported — press F2 to exit.
 
 <img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/preview-fullscreen.png" width="900" alt="Fullscreen preview">
 
@@ -361,38 +348,38 @@ it):
 
 | id | name | look |
 | --- | --- | --- |
-| `ink-teal` | Ink Teal 黛青 | jade-green gradient, quiet and deep |
-| `ink-blue` | Ink Blue 黛蓝 | deep ink blue, restrained |
-| `dusty-rose` | Dusty Rose 藕荷 | warm dusty-rose gradient, gentle |
-| `apricot-gold` | Apricot Gold 杏金 | understated warm gold |
-| `mist-gray` | Mist Gray 雾灰 | cool slate mist, calm |
-| `ink-violet` | Ink Violet 墨紫 | quiet violet, tuned for dark mode |
+| `ink-teal` | Ink Teal 黛青 | jade-green gradient, quiet and steady |
+| `ink-blue` | Ink Blue 黛蓝 | deep blue gradient, restrained and profound |
+| `dusty-rose` | Dusty Rose 藕荷 | dusty-rose gradient, warm and gentle pink |
+| `apricot-gold` | Apricot Gold 杏金 | elegant, understated warm gold |
+| `mist-gray` | Mist Gray 雾灰 | cool, quiet gray-blue mist |
+| `ink-violet` | Ink Violet 墨紫 | deep violet, serene and mysterious |
 
 More art choices will extend this list — see `src/client/presets.ts`.
 
-**Glass levels** — `glass` is the high-level "how translucent" switch; an
-explicit `wallpaperBlur` always overrides the level's default radius:
+**Glass levels** — `glass` is the translucency switch; an explicit
+`wallpaperBlur` always overrides the level's default radius:
 
 | Level | Blur | Saturation | Vibe |
 | --- | --- | --- | --- |
 | `off` | 0px | 1.0 | opaque, no glass |
 | `light` | 6px | 1.15 | subtle glass |
-| `frosted` | 14px | 1.25 | strong acrylic (default) |
-| `mica` | 22px | 1.1 | soft static tint, keeps wallpaper hues |
+| `frosted` | 14px | 1.25 | strong frosted glass (default) |
+| `mica` | 22px | 1.1 | soft static texture, keeps the wallpaper's hues |
 
 **Theme config keys** — every field is optional; explicit values always win
 over the preset:
 
 | Key | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `preset` | string | `''` | Preset id (see above); `''` = none |
-| `wallpaper` | string | `''` | Wallpaper URL/path served by the web server; empty string keeps the plugin off |
-| `wallpaperBlur` | number 0–60 | glass default | Blur radius (px) on `#root`; explicit value overrides the glass level |
-| `glass` | enum | `frosted` | `off` / `light` / `frosted` / `mica` (see Glass levels) |
+| `preset` | string | `''` | Preset id (see the table above); `''` = no preset |
+| `wallpaper` | string | `''` | Wallpaper URL/path (web-reachable); empty string keeps the plugin off |
+| `wallpaperBlur` | number 0–60 | glass default | Blur radius (px) on `#root`; an explicit value overrides the glass level |
+| `glass` | enum | `frosted` | `off` / `light` / `frosted` / `mica` (see the glass-level table) |
 | `accent` | string | `#4176e6` | Accent color; the whole deepseek ramp is derived from it |
 | `autoAccent` | boolean | `false` | Derive the accent from the wallpaper automatically (overrides `accent` on success) |
 | `surfaceOpacity` | number 0–100 | `100` | Main surface opacity (chat/details columns) |
-| `sidebarOpacity` | number 0–100 | `100` | Sidebar surface opacity |
+| `sidebarOpacity` | number 0–100 | `100` | Sidebar opacity |
 | `chatSurfaceOpacity` | number 0–100 | `100` | Chat column opacity (via `--dsw-chat-surface`) |
 | `inputOpacity` | number 0–100 | `100` | Composer input opacity |
 | `codeBlockOpacity` | number 0–100 | `100` | Code block / inline code opacity |
@@ -400,10 +387,10 @@ over the preset:
 | `gradient` | string | `''` | Light-theme gradient layered over the wallpaper; empty = none |
 | `darkScrim` | number 0–100 | `0` | Dark-theme scrim strength over the wallpaper |
 | `fontFamily` | string | `''` | Font stack override; empty = theme default |
-| `scrollbarAccent` | boolean | `false` | Tint scrollbars with the accent color |
+| `scrollbarAccent` | boolean | `false` | Tint the scrollbar with the accent color |
 | `vignette` | boolean | `false` | Soft inset vignette on the app root |
-| `customCss` | string | `''` | Raw CSS appended verbatim (escape hatch) |
-| `customVars` | object | `{}` | Extra CSS custom properties written on `<html>` (escape hatch) |
+| `customCss` | string | `''` | Raw custom CSS appended verbatim (escape hatch) |
+| `customVars` | object | `{}` | Extra CSS custom properties written onto `<html>` (escape hatch) |
 
 Full example:
 
@@ -429,22 +416,18 @@ A new settings page with customizable keybindings. Values live in the
 restart (the loader config acts as the composition base, and Reset reverts to
 the loader defaults).
 
-Combos use `Mod+Alt+Shift+<key>` syntax: `Mod` matches **Ctrl or Meta**
-(platform-agnostic), `<key>` is a letter, digit, or named key (`space`, `enter`,
-`f5`, `arrowup`, …). Empty/absent = disabled.
-
 | Action | What it does |
 | --- | --- |
 | `newConversation` | Start a new conversation (same as the sidebar's New Session button) |
-| `switchModel` | Cycle to the next model in the session's catalog (wraps; new model starts at its own default effort) |
+| `switchModel` | Cycle to the next model in the session's catalog (wraps; the new model starts at its own default reasoning effort) |
 | `cycleThinking` | Cycle the current model's reasoning effort (off → … → max, wraps) |
 | `sendMessage` | Composer send gesture (default: `Enter`) |
 | `newline` | Composer newline gesture (default: `Shift+Enter`) |
-| `usagePanel` | Pop the app-usage panel (unbound by default — opt in from Settings, e.g. `Mod+Alt+U`) |
-| `defaultWorkspace` | Workspace the new-conversation shortcut opens in ('' = current/recent) |
+| `usagePanel` | Pop the app-usage panel (unbound by default — enable it in Settings, e.g. `Mod+Alt+U`) |
+| `defaultWorkspace` | The workspace where `newConversation` opens (empty = current/recent) |
 | `modelShortcuts` | One-to-one model jumps: each combo goes straight to a specific model (combo / provider / model) |
 
-<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/shortcuts.png" width="720" alt="Shortcuts page">
+<img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/shortcuts.png" width="720" alt="Shortcuts settings page">
 
 Example:
 
@@ -456,8 +439,8 @@ config:
     cycleThinking: 'Mod+Alt+T'
 ```
 
-Prefer Enter = newline? Swap the composer gestures — send moves to `Mod+Enter`,
-plain Enter inserts a line break (send wins when both bindings match):
+Used to Enter for newlines? Set send to `Mod+Enter` and newline to `Enter`
+(when both gestures hit at once, send wins):
 
 ```yaml
 config:
@@ -466,95 +449,66 @@ config:
     newline: 'Enter'
 ```
 
-Model actions use the same `session.models` / `session.selectModel` RPCs as the
-built-in model selector, so the composer seat updates automatically; addressed
-subagent sessions are skipped (same guard the UI applies). Combos without `Mod`
-are suppressed while you're typing in an input, so plain keys never hijack the
-composer.
+Model actions go through the same `session.models` / `session.selectModel`
+RPCs as the built-in model selector, so the model shown in the composer stays
+in sync; addressed subagent sessions are skipped (same as the UI). Combos
+without `Mod` do not fire while an input is focused, so they never hijack
+normal typing.
 
 ---
 
 ### Usage statistics (Settings → App Usage)
 
-A new settings page that aggregates each session's usage projections
-(token-meter + session-stats) over four time windows — last year / month / week
-/ 3 days — showing **total / input / output tokens, cache hits (with hit rate),
-model time, sessions & steps**, plus a usage trend chart and a top-sessions
-list. Pure client-side: the session list rows already carry the host-computed
-projections, so no extra RPCs.
+The usage-statistics page aggregates each session's total usage (token-meter +
+session-stats) over a user-selectable time span, from the current year down to
+the last three days. It shows **total / input / output tokens, cache hits,
+usage time, and session & step counts**, together with a usage trend chart and
+a session ranking. The session list rows already carry the host-computed
+projection baseline, so no extra RPCs are needed.
 
-The panel can be popped from anywhere via a shortcut (unbound by default — bind
-`usagePanel` in the Shortcuts page, e.g. `Mod+Alt+U`).
+The panel can be popped up from any screen via a shortcut.
 
 ---
 
 ### General settings additions
 
-Three new rows under Settings → General:
+New additions under Settings → General:
 
-**Floating history strip (position / count)** — a strip of recent turns floats
-on the conversation's right edge:
-- **Position**: `left` / `right` / `off` (default `off` — hidden until enabled);
+**Floating history strip (position / count)** — records the history of a
+conversation:
+- **Position**: `left` / `right` / `off` (default `off` — hidden when off);
 - **Count**: how many recent turns to show (default 10, `0` = all);
-- Clicking an entry smooth-scrolls the chat there; entries come from the mounted
-  chat snapshot, so jumping is a pure DOM operation — no extra RPCs;
-- **Pin support**: pin a turn to the strip from the assistant-actions row
-  (between copy and branch). Pinned turns ignore the count limit, always show,
-  and carry the accent frame (the button hides itself while the strip is off).
+- Clicking an entry smooth-scrolls to the matching message; entries come from
+  the mounted session snapshot, so jumping is a pure DOM operation — no extra
+  RPCs;
+- **Pinning** is supported: from the message action row (between copy and
+  branch) you can pin a turn onto the strip; pinned turns ignore the count
+  limit, always show, and carry an accent-colored border.
 
 **User-message Markdown rendering** — off by default; when enabled your own
 messages render as Markdown (headings, lists, code blocks, `@subagent` /
-`@skill` references, …). Off = the stock plain-text look.
+`@skill` references, …); when off, they look the same as stock plain text.
 
 <img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/general-settings.png" width="720" alt="General settings">
 
 ---
 
-### Plugin settings additions (Settings → Plugins → Plugin Marketplace)
+### Plugin settings additions
 
-A third tab **"Plugin Marketplace"** next to Plugin configuration and Plugin
-list: a catalog of **third-party** DSH plugins with one-line descriptions and
-GitHub source links. DSH built-ins already ship in the roster and are
-intentionally **not** listed.
-
-- Sources: the `marketplaceUrl` config (raw GitHub manifest URL(s) and/or
-  GitHub repo URL(s), several allowed); on total failure the catalog stays
-  empty. This package ships a `marketplace.json` as an example;
-- Optional **GitHub auto-discovery**: repos tagged with the `dsh-plugin` topic,
-  merged after the configured sources and sorted by stars / publish date
-  (`discoverGitHub` / `discoverSort` / `discoverLimit`);
-- **Install**: one click copies the exact `- insert:` YAML to the clipboard;
-  pasting it into the watched profile patch file
-  (`~/.dsh/profiles/web/cordis.patch.yml`) applies the plugin live, no restart;
-- Entries already in the Host inventory show an "Installed" badge.
+A third tab, **"Plugin Marketplace"**, is added under Settings → Plugins: it
+calls the GitHub API to discover projects tagged with the `dsh-plugin` topic,
+providing a catalog of **third-party** DSH plugins.
 
 <img src="https://cdn.jsdelivr.net/gh/yoli-mi/dsh-client-ui-custom@main/assets/marketplace.png" width="720" alt="Plugin marketplace">
 
 ---
 
-### Other UI features
-
-**Conversation outline (right-side jump map)** — the right sidebar becomes a
-jump map of the current conversation: a floating pill on the right edge opens
-it, and the panel lists every segment (user question + following answer
-preview). Click a segment to smoothly scroll the chat there and flash an accent
-marker on the row. Segments come from the mounted chat snapshot, so jumping is
-a pure DOM operation — no extra RPCs.
-
-Implementation note: the stock details column is a `single` slot whose stock
-panel has no entry point, so the plugin **shadows** it (`priority: -1`, lowest
-renders) with the outline panel. The tool-details seat declared by that panel
-disappears with it; ui-tool defers via `inject`, so nothing throws and a stock
-harness without this plugin is untouched.
-
----
-
 ### Install
 
-1. Make sure the package builds into your deployment (`pnpm run build:lib:client`).
+1. Make sure the package is included in your build (`pnpm run build:lib:client`).
 2. Add a browser-roster row to your web profile's patch layer —
-   `~/.dsh/profiles/web/cordis.patch.yml` (or the equivalent `dsh.client`
-   roster of your profile):
+   `~/.dsh/profiles/web/cordis.patch.yml` (or the corresponding `dsh.client`
+   roster in your profile):
 
 ```yaml
 - id: ui-custom
@@ -565,37 +519,30 @@ harness without this plugin is untouched.
     wallpaperBlur: 14
 ```
 
-3. Restart `dsh web` (profile-level changes are read at boot) and hard-refresh
-   the page.
-
-The plugin ships **neutral** and **feature-off by default**: with no `wallpaper`
-configured it changes nothing, and every opt-in feature (Markdown rendering,
-the usage-panel shortcut, the floating history strip, GitHub discovery) stays
-off until you turn it on in Settings. To go back to the stock theme, remove the
-row or set `wallpaper: ''`.
+3. Restart `dsh web`.
 
 Self-builders: for the settings pages to load, the `ui-custom` namespace must
 be in the web client's settings exposure allowlist
-(`WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`) — it is
-in this checkout.
+(`WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`) — it
+is already in this checkout.
 
 ---
 
 ### How it works
 
-- The client half resolves `preset` (presets.ts), merges
-  `DEFAULTS ← preset ← config`, clamps every field (config.ts), and writes
-  `--dsu-*` custom properties onto `<html>` (apply.ts). The runner passes the
-  roster row's `config` to `apply(ctx, config)`.
-- The stylesheet (custom.module.css) consumes the variables and re-declares
+- The browser half first resolves `preset` (presets.ts), merges
+  `DEFAULTS ← preset ← config` and clamps every field (config.ts), then writes
+  the `--dsu-*` custom properties onto `<html>` (apply.ts). The runner passes
+  the roster row's `config` to `apply(ctx, config)` as the second argument.
+- The stylesheet (custom.module.css) consumes these variables and re-declares
   the theme tokens on `body` / `body[data-ds-dark-theme]` with selectors that
-  out-specify the theme sheets, so the plugin always wins the cascade. No
+  out-specify the theme sheets, so the plugin always wins the cascade — no
   plugin or shell source is modified.
-- Frosted glass applies `backdrop-filter` to `#root`; translucent surfaces
-  read through it.
+- Frosted glass adds `backdrop-filter` to `#root`, and translucent surfaces
+  show the wallpaper through it.
 - The chat-column knob relies on `ConversationRoot` reading
   `var(--dsw-chat-surface, var(--dsw-alias-bg-base))` — a one-line, fully
-  backwards-compatible fallback (stock harnesses without the token behave
+  backwards-compatible fallback (stock Harness behavior without the token is
   exactly as before). See `packages/client/ui-conversation`.
 - Framework layout:
 
@@ -603,7 +550,7 @@ in this checkout.
 packages/client/ui-custom/
 ├── src/client/
 │   ├── index.ts          # plugin entry: resolve preset → normalize → apply
-│   ├── config.ts         # CustomThemeConfig, DEFAULTS, normalizeConfig (coerce+clamp)
+│   ├── config.ts         # CustomThemeConfig, DEFAULTS, normalizeConfig (type narrowing + clamping)
 │   ├── presets.ts        # ThemePreset registry — the extension surface for art choices
 │   ├── apply.ts          # config → DOM: --dsu-* vars, customCss, customVars
 │   ├── custom.module.css # token overrides consuming the --dsu-* vars
@@ -614,9 +561,11 @@ packages/client/ui-custom/
 
 ### Notes
 
-- Profile `cordis.patch.yml` changes require a `dsh web` restart.
+- Changes to a profile's `cordis.patch.yml` only take effect after a
+  `dsh web` restart.
 - The wallpaper must be reachable by the browser (e.g. placed under the web
-  server's static root or an external URL).
+  server's static root, or an external URL).
 - The plugin's own settings pages (Appearance, Shortcuts, App Usage, …) apply
   changes immediately without a restart; editing the loader-layer config
-  through the built-in Plugin Configuration page is not supported yet.
+  directly through the built-in Plugin Configuration page is not supported yet
+  (pending the `ui-settings-plugins` schema).
