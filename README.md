@@ -10,8 +10,6 @@
 
 ## 中文
 
-### 演示视频
-
 [▶ 点击观看插件演示视频](https://www.bilibili.com/video/BV1fwbX6XEp7)
 
 ### 简介
