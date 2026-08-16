@@ -1,4 +1,4 @@
-# Dsh-client-ui-custom
+# Dsh-Client-UI-Custom
 
 <div align="center">
 
