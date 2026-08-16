@@ -20,6 +20,22 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 所有功能默认关闭，不配置时保持与原生界面一致，全程零 shell 改动。
 
+### 功能选择（按需安装）
+
+插件由六个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
+`usage`（用量统计）、`history`（历史记录条）、`markdown`（用户消息 Markdown
+渲染）、`marketplace`（插件市场）。在插件配置里用 `features` 白名单选择要安装的
+功能，未列出的功能**完全不挂载**（没有对应的设置页，也没有任何界面改动）：
+
+```yaml
+- id: ui-custom
+  name: '@deepseek-ai/dsh-client-ui-custom'
+  config:
+    features: [shortcuts, usage]   # 只安装「快捷键」+「用量统计」
+```
+
+`features` 缺省或为空时，六个功能全部启用（与旧版本行为一致）。
+
 ### 设置改动一览
 
 | 位置 | 类型 | 内容 |
@@ -292,6 +308,24 @@ in three ways:
 
 Everything ships neutral and off by default: without configuration the UI is
 byte-for-byte stock, and no shell source is ever modified.
+
+### Feature selection (install on demand)
+
+The plugin is composed of six **independent** feature modules: `appearance`,
+`shortcuts`, `usage`, `history` (history strip), `markdown` (user-message
+Markdown), and `marketplace`. Use the `features` whitelist in the plugin
+config to choose which to mount; unlisted features never register (no settings
+page, no DOM changes):
+
+```yaml
+- id: ui-custom
+  name: '@deepseek-ai/dsh-client-ui-custom'
+  config:
+    features: [shortcuts, usage]   # install only shortcuts + usage stats
+```
+
+When `features` is absent or empty, all six features mount (same behavior as
+before).
 
 ### Settings at a glance
 

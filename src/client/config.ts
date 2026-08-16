@@ -8,7 +8,8 @@
  * single documented contract for what each knob accepts.
  */
 import { SHORTCUT_ACTIONS } from './shortcuts.ts'
-import type { ModelShortcut } from '../shared.ts'
+import type { ModelShortcut, PluginFeature } from '../shared.ts'
+import { FEATURES } from '../shared.ts'
 
 /** One user-customizable keybinding (key-combo spec; '' = default behavior). */
 export interface ShortcutConfig {
@@ -110,6 +111,12 @@ export interface CustomThemeConfig {
   customVars: Record<string, string>
   /** User-customizable keyboard shortcuts ('' disables an action). */
   shortcuts: ShortcutConfig
+  /**
+   * Feature whitelist: which independently selectable features to mount.
+   * Absent or empty = every feature (backward compatible); present = only
+   * the listed features register. Loader-level selection, not a theme knob.
+   */
+  features?: readonly PluginFeature[]
   /**
    * GitHub raw marketplace manifest URL. Read straight from the raw loader
    * config (never through normalizeConfig): the client apply() receives no
@@ -258,6 +265,20 @@ export function normalizeShortcuts(value: unknown): ShortcutConfig {
     }))
     .filter(entry => entry.combo !== '' && entry.provider !== '' && entry.model !== '')
   return out
+}
+
+/**
+ * Resolve the enabled feature set from the loader config. The `features`
+ * field is a whitelist: absent or empty means every feature mounts (backward
+ * compatible); present means only the listed features register. Unknown ids
+ * are dropped. Pure: no DOM access, fully unit-testable.
+ * @param raw - the profile-level plugin config.
+ * @returns the set of features to mount.
+ */
+export function resolveFeatures(raw: Partial<CustomThemeConfig> | undefined): Set<PluginFeature> {
+  const list = raw?.features
+  if (!Array.isArray(list) || list.length === 0) return new Set([...FEATURES])
+  return new Set(list.filter((id): id is PluginFeature => (FEATURES as readonly string[]).includes(id)))
 }
 
 /**

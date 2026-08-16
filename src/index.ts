@@ -10,7 +10,7 @@ import {
   DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_POSITION, HISTORY_POSITIONS, UI_CUSTOM_SETTINGS_NS,
 } from './shared.ts'
 import type { ShortcutConfig } from './client/config.ts'
-import type { HistoryPosition, ThemeSection } from './shared.ts'
+import type { HistoryPosition, PluginFeature, ThemeSection } from './shared.ts'
 
 /** The full ui-custom section schema (schemastery defaults = the plugin's neutral defaults). */
 const UiCustomSectionSchema = z.object({
@@ -71,6 +71,13 @@ const UiCustomSectionSchema = z.object({
 
 /** Plugin config shape accepted at the loader layer (flat theme + nested shortcuts). */
 interface UiCustomConfig extends Partial<ThemeSection> {
+  /**
+   * Feature whitelist: which independently selectable features to mount
+   * (history / markdown / appearance / marketplace / shortcuts / usage).
+   * Absent or empty = every feature (backward compatible); present = only
+   * the listed features register on the web client.
+   */
+  features?: readonly PluginFeature[]
   shortcuts?: Partial<ShortcutConfig>
   /** History strip recent-turns limit (0 = show all). */
   historyLimit?: number

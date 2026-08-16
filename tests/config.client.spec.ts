@@ -5,10 +5,11 @@
  * Pure logic — no DOM mutation is exercised here (apply.ts owns that).
  */
 import { describe, expect, it } from 'vitest'
-import { DEFAULTS, normalizeConfig, resolveGlass, SHORTCUT_DEFAULTS } from '../src/client/config.ts'
+import { DEFAULTS, normalizeConfig, resolveFeatures, resolveGlass, SHORTCUT_DEFAULTS } from '../src/client/config.ts'
 import { PRESETS, PRESET_MAP, resolvePreset } from '../src/client/presets.ts'
 import { FONT_PRESETS, FONT_PRESET_MAP, resolveFontPreset } from '../src/client/font-presets.ts'
 import { randomInspirationConfig } from '../src/client/color.ts'
+import { FEATURES } from '../src/shared.ts'
 
 describe('presets', () => {
   it('registers the shipped presets with unique ids', () => {
@@ -259,5 +260,24 @@ describe('random inspiration', () => {
     const a = randomInspirationConfig(seeded(1))
     const b = randomInspirationConfig(seeded(999))
     expect(a.accent).not.toBe(b.accent)
+  })
+})
+
+describe('resolveFeatures', () => {
+  it('defaults to every feature when the config is absent or has no whitelist', () => {
+    expect(resolveFeatures(undefined)).toEqual(new Set(FEATURES))
+    expect(resolveFeatures({})).toEqual(new Set(FEATURES))
+    expect(resolveFeatures({ features: [] })).toEqual(new Set(FEATURES))
+  })
+
+  it('whitelists only the listed features', () => {
+    expect(resolveFeatures({ features: ['history', 'usage'] })).toEqual(new Set(['history', 'usage']))
+    expect(resolveFeatures({ features: ['shortcuts'] })).toEqual(new Set(['shortcuts']))
+  })
+
+  it('drops unknown ids and de-duplicates', () => {
+    expect(resolveFeatures({ features: ['shortcuts', 'nope' as never, 'history', 'history'] }))
+      .toEqual(new Set(['shortcuts', 'history']))
+    expect(resolveFeatures({ features: ['bogus' as never] }).size).toBe(0)
   })
 })
