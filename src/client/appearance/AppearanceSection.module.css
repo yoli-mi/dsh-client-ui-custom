@@ -135,12 +135,6 @@
   color: var(--dsw-alias-label-primary);
   font-size: 13px;
   line-height: 30px;
-  font-family: var(--ds-font-family-code, monospace);
-}
-
-/* The accent hex fields share the web UI font (code faces clash with the
-   interface); URL/CSS inputs keep the monospace stack. */
-.slider .text {
   font-family: var(--dsw-font-family, system-ui, sans-serif);
 }
 
