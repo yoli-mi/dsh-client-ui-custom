@@ -20,6 +20,10 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 所有功能默认关闭，不配置时保持与原生界面一致，全程零 shell 改动。
 
+### 宣传视频
+
+[▶ 点击观看插件宣传视频（B 站）](https://www.bilibili.com/video/BV1fwbX6XEp7)
+
 ### 功能选择（按需安装）
 
 插件由六个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
