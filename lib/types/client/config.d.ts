@@ -1,4 +1,4 @@
-import type { ModelShortcut } from '../shared.ts';
+import type { ModelShortcut, PluginFeature } from '../shared.ts';
 /** One user-customizable keybinding (key-combo spec; '' = default behavior). */
 export interface ShortcutConfig {
     /** Start a new conversation. */
@@ -87,6 +87,12 @@ export interface CustomThemeConfig {
     /** User-customizable keyboard shortcuts ('' disables an action). */
     shortcuts: ShortcutConfig;
     /**
+     * Feature whitelist: which independently selectable features to mount.
+     * Absent or empty = every feature (backward compatible); present = only
+     * the listed features register. Loader-level selection, not a theme knob.
+     */
+    features?: readonly PluginFeature[];
+    /**
      * GitHub raw marketplace manifest URL. Read straight from the raw loader
      * config (never through normalizeConfig): the client apply() receives no
      * loader config, so this only takes effect when a caller passes it
@@ -144,6 +150,15 @@ export declare const clampNumber: (value: unknown, lo: number, hi: number, fallb
 export declare const cleanString: (value: unknown, fallback: string) => string;
 /** Coerce a shortcuts config: unknown entries dropped, strings trimmed, missing → defaults. */
 export declare function normalizeShortcuts(value: unknown): ShortcutConfig;
+/**
+ * Resolve the enabled feature set from the loader config. The `features`
+ * field is a whitelist: absent or empty means every feature mounts (backward
+ * compatible); present means only the listed features register. Unknown ids
+ * are dropped. Pure: no DOM access, fully unit-testable.
+ * @param raw - the profile-level plugin config.
+ * @returns the set of features to mount.
+ */
+export declare function resolveFeatures(raw: Partial<CustomThemeConfig> | undefined): Set<PluginFeature>;
 /**
  * Merge DEFAULTS ← preset ← explicit config, then coerce/clamp every field.
  * Pure: no DOM access, fully unit-testable.

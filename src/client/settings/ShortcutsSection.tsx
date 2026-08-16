@@ -34,7 +34,7 @@ const ROWS: readonly { field: ShortcutAction; label: ShortcutsKey }[] = [
 export function ShortcutsSection({
   t, useShortcuts, useWorkspaces, useModels, setDraft, save, resetField,
   setDefaultWorkspace, addModelShortcut, removeModelShortcut,
-  setModelShortcutCombo, setModelShortcutTarget,
+  setModelShortcutCombo, setModelShortcutTarget, usageAvailable,
 }: ShortcutsSectionProps) {
   const state = useShortcuts((value) => value)
   const workspaces = useWorkspaces((value) => value)
@@ -42,6 +42,9 @@ export function ShortcutsSection({
   const [wsOpen, setWsOpen] = useState(false)
   const [modelOpen, setModelOpen] = useState<number | null>(null)
   const items = workspaces?.items ?? []
+  // Cross-feature gate: the usage-panel binding only makes sense (and only
+  // dispatches) when the usage feature is mounted too.
+  const rows = ROWS.filter((row) => row.field !== 'usagePanel' || usageAvailable)
 
   return (
     <div className={css.section}>
@@ -54,7 +57,7 @@ export function ShortcutsSection({
         </div>
       ) : (
         <div className={css.rows}>
-          {ROWS.map((row) => (
+          {rows.map((row) => (
             <div key={row.field} className={css.row}>
               <label className={css.label} htmlFor={`shortcut-${row.field}`}>{t(row.label)}</label>
               <KeyCapture

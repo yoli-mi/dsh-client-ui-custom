@@ -9,5 +9,5 @@ export type ShortcutsSectionProps = PropsRuntime<'settings.section'> & PropsLoca
  * Render the shortcuts section content.
  * @param props - composed slot props + injected controller face.
  */
-export declare function ShortcutsSection({ t, useShortcuts, useWorkspaces, useModels, setDraft, save, resetField, setDefaultWorkspace, addModelShortcut, removeModelShortcut, setModelShortcutCombo, setModelShortcutTarget, }: ShortcutsSectionProps): import("react").JSX.Element;
+export declare function ShortcutsSection({ t, useShortcuts, useWorkspaces, useModels, setDraft, save, resetField, setDefaultWorkspace, addModelShortcut, removeModelShortcut, setModelShortcutCombo, setModelShortcutTarget, usageAvailable, }: ShortcutsSectionProps): import("react").JSX.Element;
 //# sourceMappingURL=ShortcutsSection.d.ts.map

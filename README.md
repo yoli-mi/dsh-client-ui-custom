@@ -36,6 +36,17 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 `features` 缺省或为空时，六个功能全部启用。
 
+**模块间的联动**——只有少数两处跨模块行为，且都**仅在两个相关模块都安装时
+才生效**：
+
+- **快捷键 × 用量统计**：快捷键设置里的「呼出用量面板」绑定只在同时安装了
+  `shortcuts` 与 `usage` 时生效。只装 `shortcuts` 时，设置页不显示这一行，
+  已配置的按键也不会触发（之后补装 `usage` 即可恢复，无需重新配置）。
+- **历史记录条 × 外观**：历史条置顶会话的强调色边框优先使用外观模块的强调色；
+  未安装 `appearance` 时自动回退到界面默认品牌色，不会失效或报错。
+
+除此之外各模块之间没有其他依赖，任意组合都安全。
+
 ### 设置改动一览
 
 | 位置 | 类型 | 内容 |
@@ -326,6 +337,20 @@ page, no DOM changes):
 
 When `features` is absent or empty, all six features mount (same behavior as
 before).
+
+**Feature linkage** — there are only two cross-feature behaviors, and both only
+kick in when **both** related modules are installed:
+
+- **Shortcuts × usage stats**: the "usage panel" binding in the Shortcuts
+  settings only works when both `shortcuts` and `usage` are mounted. With
+  `shortcuts` only, that row is hidden from the settings page and any
+  configured binding never fires (reinstall `usage` and it comes back — no
+  reconfiguration needed).
+- **History strip × appearance**: a pinned conversation's accent border uses
+  the appearance module's accent when available, and otherwise falls back to
+  the stock brand accent — it never breaks without `appearance`.
+
+No other cross-module dependencies exist; any combination is safe.
 
 ### Settings at a glance
 

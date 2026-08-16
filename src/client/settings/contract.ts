@@ -58,6 +58,8 @@ export interface ShortcutsSettingsInjected {
     /** The current session's model catalog. */
     models: HostObservable<ModelCatalogState>
   }
+  /** Whether the usage feature is mounted (shows the usagePanel binding row). */
+  usageAvailable: boolean
   setDraft(field: ShortcutAction, spec: string): void
   setDefaultWorkspace(workspaceId: string): void
   addModelShortcut(): void

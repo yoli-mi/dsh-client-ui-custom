@@ -5,6 +5,16 @@
 /** Settings namespace owned by ui-custom (runtime-editable section). */
 export declare const UI_CUSTOM_SETTINGS_NS = "ui-custom";
 /**
+ * Individually selectable plugin features. The loader config's `features`
+ * field is a whitelist: absent or empty = every feature mounts (backward
+ * compatible); present = only the listed features register. Each feature
+ * owns its settings rows / pages, so an unlisted feature is simply absent
+ * from the Settings surface and the DOM.
+ */
+export declare const FEATURES: readonly ["history", "markdown", "appearance", "marketplace", "shortcuts", "usage"];
+/** One opt-in plugin feature id (see {@link FEATURES}). */
+export type PluginFeature = typeof FEATURES[number];
+/**
  * Runtime-editable theme fields (the "外观" section). Mirrors
  * CustomThemeConfig. Keys are always present in the resolved section; values
  * may be undefined while the scope has not resolved yet.

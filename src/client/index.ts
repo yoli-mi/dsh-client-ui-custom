@@ -40,7 +40,7 @@ import { normalizeConfig, resolveFeatures, type CustomThemeConfig, type Shortcut
 import { resolvePreset } from './presets.ts'
 import {
   buildShortcutMap, comboEnabled, isEditableTarget, matchesKeyCombo, parseKeyCombo,
-  type KeyCombo,
+  type KeyCombo, type ShortcutAction,
 } from './shortcuts.ts'
 import { UI_CUSTOM_SETTINGS_NS, type ModelShortcut, type PluginFeature, type ThemeSection, type UiCustomSection } from '../shared.ts'
 import { usageOverlay } from './usage-overlay.ts'
@@ -92,12 +92,19 @@ export const inject = ['slots', 'locale', 'connection', 'sessions', 'workspaces'
  * returns the disposer.
  * @param ctx - client root context (for action dispatch).
  * @param shortcuts - normalized shortcut config.
+ * @param disabledActions - actions to skip entirely (cross-feature gating: an
+ * action whose target feature is not mounted is never dispatched).
  * @returns the disposer removing the listener.
  */
-function installShortcuts(ctx: ClientContext, shortcuts: ShortcutConfig): () => void {
+function installShortcuts(
+  ctx: ClientContext,
+  shortcuts: ShortcutConfig,
+  disabledActions: ReadonlySet<ShortcutAction> = new Set(),
+): () => void {
   const combos = buildShortcutMap(shortcuts)
   // Only dispatcher actions dispatch; sendMessage/newline are composer remaps.
-  const actions = Object.keys(SHORTCUT_HANDLERS) as (keyof typeof SHORTCUT_HANDLERS)[]
+  const actions = (Object.keys(SHORTCUT_HANDLERS) as (keyof typeof SHORTCUT_HANDLERS)[])
+    .filter((action) => !disabledActions.has(action))
   const modelShortcuts = shortcuts.modelShortcuts
     .map(entry => ({ entry, combo: parseKeyCombo(entry.combo) }))
     .filter((item): item is { entry: ModelShortcut; combo: KeyCombo } => item.combo !== null)
@@ -301,7 +308,13 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
         defaultWorkspace: section?.defaultWorkspace ?? normalized.shortcuts.defaultWorkspace,
         modelShortcuts: section?.modelShortcuts ?? normalized.shortcuts.modelShortcuts,
       }
-      const disposeActions = installShortcuts(ctx, shortcuts)
+      const disposeActions = installShortcuts(
+        ctx,
+        shortcuts,
+        // Cross-feature gate: the usage-panel binding only dispatches when the
+        // usage feature is mounted too.
+        enabled('usage') ? undefined : new Set<ShortcutAction>(['usagePanel']),
+      )
       const disposeComposer = installComposerInput(shortcuts)
       disposeShortcuts = () => {
         disposeActions()
@@ -336,6 +349,7 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
           workspaces: ctx.workspaces.list,
           models: controller.models,
         },
+        usageAvailable: enabled('usage'),
         ...actions,
       }),
     }, ShortcutsSection))
