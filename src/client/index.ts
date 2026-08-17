@@ -144,14 +144,13 @@ function installShortcuts(
  * @param config - profile-level plugin config (partial over the preset).
  */
 export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): void {
+  const scope = ctx.settingsScope.bind<UiCustomSection>({ namespace: UI_CUSTOM_SETTINGS_NS })
   const presetId = typeof config?.preset === 'string' ? config.preset : ''
   const normalized = normalizeConfig(config, resolvePreset(presetId))
-  const features = resolveFeatures(config)
-  const enabled = (feature: PluginFeature): boolean => features.has(feature)
-
-  // Theme application belongs to the 外观 feature: without it the plugin never
-  // touches the document theme and the config stays inert.
-  if (enabled('appearance')) applyConfig(normalized)
+  // The runtime settings scope is the only config channel that reaches the
+  // browser (the loader config arrives via the host-registered namespace
+  // base, never as the apply argument). Its first snapshot arrives
+  // asynchronously, so feature registration waits for it (registerFeatures).
 
   // Native widgets (range tracks, select dropdown panels, color pickers) are
   // drawn from the root color-scheme. The shell sets it once at boot from the
@@ -170,8 +169,26 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
     return () => { observer.disconnect() }
   }, 'ui-custom: color-scheme follows the active theme')
 
-  // ── Locales: register only the mounted features' dictionaries ────────────
-  if (enabled('shortcuts')) ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-custom: section dictionaries')
+  // ── Feature registration ──────────────────────────────────────────────────
+  // The whitelist arrives through the settings scope's first snapshot (which
+  // lands asynchronously), so registration runs once the scope is ready and
+  // re-runs on its arrival if it is still loading. Every feature's settings
+  // rows, pages and DOM effects are gated below.
+  let featuresRegistered = false
+  const registerFeatures = (): void => {
+    if (featuresRegistered) return
+    const snapshot = scope.getSnapshot()
+    if (snapshot.status !== 'ready' || snapshot.value === undefined) return
+    featuresRegistered = true
+    const features = resolveFeatures(snapshot.value)
+    const enabled = (feature: PluginFeature): boolean => features.has(feature)
+
+    // Theme application belongs to the 外观 feature: without it the plugin
+    // never touches the document theme and the config stays inert.
+    if (enabled('appearance')) applyConfig(normalized)
+
+    // ── Locales: register only the mounted features' dictionaries ──────────
+    if (enabled('shortcuts')) ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-custom: section dictionaries')
   if (enabled('usage')) ctx.effect(() => ctx.locale.register(USAGE_NS, { zh: usageZh, en: usageEn }), 'ui-custom: usage dictionaries')
   if (enabled('appearance')) {
     ctx.effect(
@@ -201,10 +218,6 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
       'ui-custom: markdown dictionaries',
     )
   }
-
-  // The runtime settings scope is shared by every feature that reads or
-  // writes the ui-custom namespace (theme, shortcuts, history, marketplace…).
-  const scope = ctx.settingsScope.bind<UiCustomSection>({ namespace: UI_CUSTOM_SETTINGS_NS })
 
   // ── 外观：theme pipeline + appearance section + preview hint ─────────────
   if (enabled('appearance')) {
@@ -538,6 +551,15 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
       locale: 'conversation',
       inject: (): MarkdownRenderInjected => ({ hooks: { mdRender: scope } }),
     }, UserMarkdownNodeView))
+  }
+  }
+
+  // Kick registration; if the settings snapshot has not landed yet, wait for
+  // its arrival (the loader config reaches the browser asynchronously).
+  registerFeatures()
+  if (!featuresRegistered) {
+    const disposeRegistration = scope.subscribe(() => { registerFeatures() })
+    ctx.effect(() => disposeRegistration, 'ui-custom: feature registration waiter')
   }
 
   // Type-reference the connection face so its injection is tracked (used by actions).
