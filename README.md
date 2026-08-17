@@ -24,7 +24,7 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 ### 宣传视频
 
-[▶ 点击观看插件宣传视频（B 站）](https://www.bilibili.com/video/BV1fwbX6XEp7)
+[▶ 点击观看演示视频（B 站）](https://www.bilibili.com/video/BV1fwbX6XEp7)
 
 ### 功能选择（按需安装）
 
@@ -224,11 +224,7 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 
 ### 安装
 
-两种方式任选其一：npm 一条命令（推荐），或源码构建。
-
-**方式一：npm 包（推荐，免本地构建）**
-
-预构建产物已发布到 npm，安装无需本地构建、也无需构建授权：
+**方式一：npm 包（推荐）**
 
 ```bash
 dsh plugin add @ha-na-bi/dsh-client-ui-custom
@@ -248,9 +244,9 @@ dsh plugin add @ha-na-bi/dsh-client-ui-custom
 
 然后重启 `dsh web`。
 
-**方式二：源码构建**
+**方式二：源码**
 
-1. 确保构建会包含该包（`pnpm run build:lib:client`）。
+1. 确保包含该包（`pnpm run build:lib:client`）。
 2. 在 Web profile 的补丁层加入浏览器 roster 行 ——
    `~/.dsh/profiles/web/cordis.patch.yml`（或你 profile 中对应的 `dsh.client` roster）：
 
@@ -264,10 +260,6 @@ dsh plugin add @ha-na-bi/dsh-client-ui-custom
 ```
 
 3. 重启 `dsh web`。
-
-自行构建时需注意：设置页要能加载，`ui-custom` 命名空间必须在 Web 客户端的
-设置暴露白名单里（`packages/host/apiproxy/src/api-proxy.ts` 的
-`WEB_SETTINGS_NAMESPACES`）——本检出已加入。
 
 ---
 
@@ -537,13 +529,9 @@ providing a catalog of **third-party** DSH plugins.
 
 ### Install
 
-Pick either path: a one-command npm install (recommended), or building from
-source.
+Pick either path: 
 
-**Path 1: npm package (recommended — no local build)**
-
-The prebuilt package is published to npm, so installing needs no local build
-and no build approval:
+**Path 1: npm package (recommended )**
 
 ```bash
 dsh plugin add @ha-na-bi/dsh-client-ui-custom
@@ -581,11 +569,6 @@ Then restart `dsh web`.
 ```
 
 3. Restart `dsh web`.
-
-Self-builders: for the settings pages to load, the `ui-custom` namespace must
-be in the web client's settings exposure allowlist
-(`WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`) — it
-is already in this checkout.
 
 ---
 
