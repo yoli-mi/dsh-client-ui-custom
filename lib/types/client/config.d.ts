@@ -158,7 +158,9 @@ export declare function normalizeShortcuts(value: unknown): ShortcutConfig;
  * @param raw - the profile-level plugin config.
  * @returns the set of features to mount.
  */
-export declare function resolveFeatures(raw: Partial<CustomThemeConfig> | undefined): Set<PluginFeature>;
+export declare function resolveFeatures(raw: {
+    readonly features?: readonly PluginFeature[] | undefined;
+} | undefined): Set<PluginFeature>;
 /**
  * Merge DEFAULTS ← preset ← explicit config, then coerce/clamp every field.
  * Pure: no DOM access, fully unit-testable.
