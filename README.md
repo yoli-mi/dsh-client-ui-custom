@@ -222,11 +222,7 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 
 ### 安装
 
-两种方式任选其一：npm 一条命令（推荐），或源码构建。
-
-**方式一：npm 包（推荐，免本地构建）**
-
-预构建产物已发布到 npm，安装无需本地构建、也无需构建授权：
+**方式一：npm 包（推荐）**
 
 ```bash
 dsh plugin add @ha-na-bi/dsh-client-ui-custom
@@ -246,7 +242,7 @@ dsh plugin add @ha-na-bi/dsh-client-ui-custom
 
 然后重启 `dsh web`。
 
-**方式二：源码构建**
+**方式二：源码**
 
 1. 确保构建会包含该包（`pnpm run build:lib:client`）。
 2. 在 Web profile 的补丁层加入浏览器 roster 行 ——
