@@ -122,6 +122,14 @@ export interface HistorySection {
 /** The plugin's full settings section: theme + shortcuts + history, flat on one namespace. */
 export interface UiCustomSection extends ThemeSection, ShortcutsSection, HistorySection {
     /**
+     * Feature whitelist: which independently selectable features mount on the
+     * web client (history / markdown / appearance / marketplace / shortcuts /
+     * usage). Absent or empty = every feature; present = only the listed ones
+     * register. Lives in the settings namespace (the client never receives the
+     * loader config), seeded from the loader config's `features`.
+     */
+    features?: readonly PluginFeature[];
+    /**
      * Marketplace catalog source(s): raw manifest JSON URL(s) and/or GitHub
      * repo URL(s), comma/newline separated. Each GitHub repo is probed for its
      * `marketplace.json` on the `main` and `master` branches; when neither
