@@ -224,7 +224,7 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 
 ### 安装
 
-1. 确保构建会包含该包`pnpm run build:lib:client`。
+1. 确保构建会包含该包（`pnpm run build:lib:client`）。
 2. 在 Web profile 的补丁层加入浏览器 roster 行 ——
    `~/.dsh/profiles/web/cordis.patch.yml`（或你 profile 中对应的 `dsh.client` roster）：
 
@@ -240,8 +240,8 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 3. 重启 `dsh web`。
 
 自行构建时需注意：设置页要能加载，`ui-custom` 命名空间必须在 Web 客户端的
-设置暴露白名单里`packages/host/apiproxy/src/api-proxy.ts` 
-`WEB_SETTINGS_NAMESPACES`,本检出已加入。
+设置暴露白名单里（`packages/host/apiproxy/src/api-proxy.ts` 的
+`WEB_SETTINGS_NAMESPACES`）——本检出已加入。
 
 ---
 
@@ -526,11 +526,6 @@ providing a catalog of **third-party** DSH plugins.
 ```
 
 3. Restart `dsh web`.
-
-Self-builders: for the settings pages to load, the `ui-custom` namespace must
-be in the web client's settings exposure allowlist
-(`WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`) — it
-is already in this checkout.
 
 Self-builders: for the settings pages to load, the `ui-custom` namespace must
 be in the web client's settings exposure allowlist
