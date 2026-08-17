@@ -10,8 +10,8 @@ import {
 
 describe('installSnippet', () => {
   it('builds the insert YAML for a plugin', () => {
-    expect(installSnippet('ui-custom', '@deepseek-ai/dsh-client-ui-custom')).toBe(
-      "- insert:\n    - id: ui-custom\n      name: '@deepseek-ai/dsh-client-ui-custom'",
+    expect(installSnippet('ui-custom', '@ha-na-bi/dsh-client-ui-custom')).toBe(
+      "- insert:\n    - id: ui-custom\n      name: '@ha-na-bi/dsh-client-ui-custom'",
     )
   })
 })
