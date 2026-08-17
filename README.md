@@ -222,6 +222,32 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 
 ### 安装
 
+两种方式任选其一：npm 一条命令（推荐），或源码构建。
+
+**方式一：npm 包（推荐，免本地构建）**
+
+预构建产物已发布到 npm，安装无需本地构建、也无需构建授权：
+
+```bash
+dsh plugin add @ha-na-bi/dsh-client-ui-custom
+```
+
+装好后在 profile 的补丁层配置它 —— `~/.dsh/profiles/web/cordis.patch.yml`
+（或你 profile 中对应的 `dsh.client` roster）：
+
+```yaml
+- id: ui-custom
+  name: '@ha-na-bi/dsh-client-ui-custom'
+  config:
+    preset: 'ink-teal'        # 选择预设；下面任意字段会覆盖它
+    wallpaper: '/my-wall.jpg'
+    wallpaperBlur: 14
+```
+
+然后重启 `dsh web`。
+
+**方式二：源码构建**
+
 1. 确保构建会包含该包（`pnpm run build:lib:client`）。
 2. 在 Web profile 的补丁层加入浏览器 roster 行 ——
    `~/.dsh/profiles/web/cordis.patch.yml`（或你 profile 中对应的 `dsh.client` roster）：
@@ -235,7 +261,7 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
     wallpaperBlur: 14
 ```
 
-3. 重启 `dsh web`
+3. 重启 `dsh web`。
 
 自行构建时需注意：设置页要能加载，`ui-custom` 命名空间必须在 Web 客户端的
 设置暴露白名单里（`packages/host/apiproxy/src/api-proxy.ts` 的
@@ -508,6 +534,35 @@ providing a catalog of **third-party** DSH plugins.
 ---
 
 ### Install
+
+Pick either path: a one-command npm install (recommended), or building from
+source.
+
+**Path 1: npm package (recommended — no local build)**
+
+The prebuilt package is published to npm, so installing needs no local build
+and no build approval:
+
+```bash
+dsh plugin add @ha-na-bi/dsh-client-ui-custom
+```
+
+Then configure it in your profile's patch layer —
+`~/.dsh/profiles/web/cordis.patch.yml` (or the corresponding `dsh.client`
+roster in your profile):
+
+```yaml
+- id: ui-custom
+  name: '@ha-na-bi/dsh-client-ui-custom'
+  config:
+    preset: 'ink-teal'        # pick a preset; any field below overrides it
+    wallpaper: '/my-wall.jpg'
+    wallpaperBlur: 14
+```
+
+Then restart `dsh web`.
+
+**Path 2: build from source**
 
 1. Make sure the package is included in your build (`pnpm run build:lib:client`).
 2. Add a browser-roster row to your web profile's patch layer —
