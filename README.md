@@ -10,8 +10,6 @@
 
 ## 中文
 
-[▶ 点击观看插件演示视频](https://www.bilibili.com/video/BV1fwbX6XEp7)
-
 ### 简介
 
 Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历史记录条、用户消息md渲染、外观调试、插件市场、快捷键和用量统计功能。
@@ -22,6 +20,10 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 所有功能默认关闭，不配置时保持与原生界面一致，全程零 shell 改动。
 
+### 宣传视频
+
+[▶ 点击观看插件宣传视频（B 站）](https://www.bilibili.com/video/BV1fwbX6XEp7)
+
 ### 功能选择（按需安装）
 
 插件由六个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
@@ -31,7 +33,7 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 ```yaml
 - id: ui-custom
-  name: '@deepseek-ai/dsh-client-ui-custom'
+  name: '@ha-na-bi/dsh-client-ui-custom'
   config:
     features: [shortcuts, usage]   # 只安装「快捷键」+「用量统计」
 ```
@@ -226,7 +228,7 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 
 ```yaml
 - id: ui-custom
-  name: '@deepseek-ai/dsh-client-ui-custom'
+  name: '@ha-na-bi/dsh-client-ui-custom'
   config:
     preset: 'ink-teal'        # 选择预设；下面任意字段会覆盖它
     wallpaper: '/my-wall.jpg'
@@ -305,7 +307,7 @@ the `features` whitelist in the plugin config to choose which to install:
 
 ```yaml
 - id: ui-custom
-  name: '@deepseek-ai/dsh-client-ui-custom'
+  name: '@ha-na-bi/dsh-client-ui-custom'
   config:
     features: [shortcuts, usage]   # install only shortcuts + usage stats
 ```
@@ -514,7 +516,7 @@ providing a catalog of **third-party** DSH plugins.
 
 ```yaml
 - id: ui-custom
-  name: '@deepseek-ai/dsh-client-ui-custom'
+  name: '@ha-na-bi/dsh-client-ui-custom'
   config:
     preset: 'ink-teal'        # pick a preset; any field below overrides it
     wallpaper: '/my-wall.jpg'
