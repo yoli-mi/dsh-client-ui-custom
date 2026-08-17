@@ -534,7 +534,7 @@ providing a catalog of **third-party** DSH plugins.
 Pick either path: a one-command npm install (recommended), or building from
 source.
 
-**Path 1: npm package (recommended — no local build)**
+**Path 1: npm package (recommended)**
 
 The prebuilt package is published to npm, so installing needs no local build
 and no build approval:
