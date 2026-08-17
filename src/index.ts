@@ -7,7 +7,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import { settingsNamespace } from '@deepseek-ai/dsh-settings'
 import z from '@deepseek-ai/schemastery'
 import {
-  DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_POSITION, HISTORY_POSITIONS, UI_CUSTOM_SETTINGS_NS,
+  DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_POSITION, FEATURES, HISTORY_POSITIONS, UI_CUSTOM_SETTINGS_NS,
 } from './shared.ts'
 import type { ShortcutConfig } from './client/config.ts'
 import type { HistoryPosition, PluginFeature, ThemeSection } from './shared.ts'
@@ -67,6 +67,9 @@ const UiCustomSectionSchema = z.object({
   // discovery sort (stars / publish date) and how many entries to show
   discoverSort: z.union(['stars', 'date']).default('stars'),
   discoverLimit: z.number().default(30),
+  // feature whitelist: which independently selectable features mount on the
+  // web client (absent/empty = all; see resolveFeatures on the client side)
+  features: z.array(z.union([...FEATURES])).default([]),
 })
 
 /** Plugin config shape accepted at the loader layer (flat theme + nested shortcuts). */
@@ -152,6 +155,7 @@ export function apply(ctx: Context, config?: UiCustomConfig): void {
         discoverGitHub: config?.discoverGitHub ?? false,
         discoverSort: config?.discoverSort ?? 'stars',
         discoverLimit: config?.discoverLimit ?? 30,
+        features: config?.features ? [...config.features] : [],
       },
     })
   })
