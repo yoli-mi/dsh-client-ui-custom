@@ -240,8 +240,8 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 3. 重启 `dsh web`。
 
 自行构建时需注意：设置页要能加载，`ui-custom` 命名空间必须在 Web 客户端的
-设置暴露白名单里（`packages/host/apiproxy/src/api-proxy.ts` 
-`WEB_SETTINGS_NAMESPACES`）——本检出已加入。
+设置暴露白名单里`packages/host/apiproxy/src/api-proxy.ts` 
+`WEB_SETTINGS_NAMESPACES`,本检出已加入。
 
 ---
 
