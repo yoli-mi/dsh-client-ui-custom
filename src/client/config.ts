@@ -275,7 +275,7 @@ export function normalizeShortcuts(value: unknown): ShortcutConfig {
  * @param raw - the profile-level plugin config.
  * @returns the set of features to mount.
  */
-export function resolveFeatures(raw: Partial<CustomThemeConfig> | undefined): Set<PluginFeature> {
+export function resolveFeatures(raw: { readonly features?: readonly PluginFeature[] | undefined } | undefined): Set<PluginFeature> {
   const list = raw?.features
   if (!Array.isArray(list) || list.length === 0) return new Set([...FEATURES])
   return new Set(list.filter((id): id is PluginFeature => (FEATURES as readonly string[]).includes(id)))
