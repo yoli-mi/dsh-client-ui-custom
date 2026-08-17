@@ -1,7 +1,7 @@
 [
   {
     "id": "dsh-client-ui-custom",
-    "package": "@deepseek-ai/dsh-client-ui-custom",
+    "package": "@ha-na-bi/dsh-client-ui-custom",
     "name": "客制化DSH（Custom DSH）",
     "description": "Web 外观主题定制（壁纸、毛玻璃、强调色、渐变、质感、字体与字号）、键盘快捷键、应用用量面板、用户消息 Markdown 渲染。",
     "repoUrl": "https://github.com/Yoli-mi/dsh-client-ui-custom"
