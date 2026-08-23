@@ -13,7 +13,7 @@ export const UI_CUSTOM_SETTINGS_NS = 'ui-custom'
  * owns its settings rows / pages, so an unlisted feature is simply absent
  * from the Settings surface and the DOM.
  */
-export const FEATURES = ['history', 'markdown', 'appearance', 'marketplace', 'shortcuts', 'usage'] as const
+export const FEATURES = ['history', 'markdown', 'appearance', 'marketplace', 'shortcuts', 'usage', 'animation'] as const
 
 /** One opt-in plugin feature id (see {@link FEATURES}). */
 export type PluginFeature = typeof FEATURES[number]
