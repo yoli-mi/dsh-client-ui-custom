@@ -153,7 +153,7 @@ export function MotionSection({
           })}
         </div>
       </div>
-      <div className={`${css.row} ${enabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row} ${css.rowDivider} ${enabled ? '' : css.rowDisabled}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('toggleTitle')}</div>
           <div className={css.desc}>{translator('toggleDesc')}</div>
@@ -168,7 +168,7 @@ export function MotionSection({
           />
         </label>
       </div>
-      <div className={`${css.row} ${css.rowDivider} ${enabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row} ${enabled ? '' : css.rowDisabled}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('styleTitle')}</div>
           <div className={css.desc}>{translator('styleDesc')}</div>
@@ -262,7 +262,7 @@ export function MotionSection({
           />
         </label>
       </div>
-      <div className={`${css.row}`}>
+      <div className={`${css.row} ${css.rowDivider}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('newChatToggleTitle')}</div>
           <div className={css.desc}>{translator('newChatToggleDesc')}</div>
