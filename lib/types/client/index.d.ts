@@ -24,7 +24,6 @@
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client';
 import { type CustomThemeConfig } from './config.ts';
 import './custom.module.css';
-import './animation/animation.module.css';
 export type { CustomThemeConfig } from './config.ts';
 export type { ThemePreset } from './presets.ts';
 export { DEFAULTS, CONFIG_KEYS, SHORTCUT_DEFAULTS, SHORTCUT_ACTIONS, normalizeConfig, resolveFeatures, clampNumber, cleanString } from './config.ts';
