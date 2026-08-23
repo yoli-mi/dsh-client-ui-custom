@@ -16,5 +16,9 @@ export type UsageSectionProps =
  * @returns the section element tree.
  */
 export function UsageSection({ t, useSessions }: UsageSectionProps) {
-  return <UsagePanel useSessions={useSessions} t={t as TranslateNS<'usage'>} />
+  return (
+    <div data-dsu-motion="fade-up">
+      <UsagePanel useSessions={useSessions} t={t as TranslateNS<'usage'>} />
+    </div>
+  )
 }
