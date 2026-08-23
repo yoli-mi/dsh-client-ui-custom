@@ -1,31 +1,38 @@
 /**
  * Apple-style motion for the `animation` feature. Every rule is gated behind
- * `html[data-dsu-anim]` — set only when the feature mounts — so this sheet can
- * be imported unconditionally without ever animating by default.
+ * `html[data-dsu-anim]` — set by the 动效 settings section (off by default
+ * when the feature mounts with the switch off, on when enabled) — so this
+ * sheet can be imported unconditionally without ever animating by default.
  *
  * Vocabulary follows Apple's fluid-interface defaults: critically damped
  * (no overshoot), 150–250ms settle, `transform` + `opacity` only, and a plain
  * cross-fade fallback under `prefers-reduced-motion`. Components opt in with a
  * `data-dsu-motion` attribute on their root element.
+ *
+ * The 动效 section drives three knobs:
+ *   - `--dsu-anim-duration` / `--dsu-anim-ease` / `--dsu-anim-rise`: the
+ *     style tier (soft / standard / lively), written on `<html>`;
+ *   - `html[data-dsu-preset='focus']`: the focus preset strips every
+ *     displacement and scale, leaving a pure cross-fade.
  */
 
-/* Settings sections (Appearance / Shortcuts / Usage / Marketplace): the
- * content fades in with a 6px rise — a bridge for content that would
+/* Settings sections (Appearance / Shortcuts / Usage / Marketplace / Motion):
+ * the content fades in with a slight rise — a bridge for content that would
  * otherwise teleport into view when the page or tab opens. */
 html[data-dsu-anim] [data-dsu-motion='fade-up'] {
-  animation: dsu-fade-up 200ms cubic-bezier(0.2, 0, 0, 1) both;
+  animation: dsu-fade-up var(--dsu-anim-duration, 200ms) var(--dsu-anim-ease, cubic-bezier(0.2, 0, 0, 1)) both;
 }
 
 /* The usage overlay reads as a material arriving (scale + fade together),
  * not a plain opacity fade. */
 html[data-dsu-anim] [data-dsu-motion='sheet'] {
-  animation: dsu-sheet 250ms cubic-bezier(0.2, 0, 0, 1) both;
+  animation: dsu-sheet var(--dsu-anim-duration, 200ms) var(--dsu-anim-ease, cubic-bezier(0.2, 0, 0, 1)) both;
 }
 
 /* The history strip enters from the edge it sits on
  * (--dsu-strip-x is set by the strip component from its position). */
 html[data-dsu-anim] [data-dsu-motion='strip'] {
-  animation: dsu-strip 250ms cubic-bezier(0.2, 0, 0, 1) both;
+  animation: dsu-strip var(--dsu-anim-duration, 200ms) var(--dsu-anim-ease, cubic-bezier(0.2, 0, 0, 1)) both;
 }
 
 /* New user-message nodes: a very short fade only — no displacement, so
@@ -43,7 +50,7 @@ html[data-dsu-anim] [data-dsu-motion='press']:active {
 @keyframes dsu-fade-up {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(var(--dsu-anim-rise, 6px));
   }
 }
 
@@ -65,6 +72,17 @@ html[data-dsu-anim] [data-dsu-motion='press']:active {
   from {
     opacity: 0;
   }
+}
+
+/* The focus preset: keep the cross-fade only, drop every displacement/scale. */
+html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='fade-up'],
+html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='strip'],
+html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='sheet'] {
+  animation-name: dsu-node;
+}
+
+html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='press']:active {
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
