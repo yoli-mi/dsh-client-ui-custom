@@ -13,18 +13,10 @@ export const UI_CUSTOM_SETTINGS_NS = 'ui-custom'
  * owns its settings rows / pages, so an unlisted feature is simply absent
  * from the Settings surface and the DOM.
  */
-export const FEATURES = ['history', 'markdown', 'appearance', 'marketplace', 'shortcuts', 'usage', 'animation'] as const
+export const FEATURES = ['history', 'markdown', 'appearance', 'marketplace', 'shortcuts', 'usage'] as const
 
 /** One opt-in plugin feature id (see {@link FEATURES}). */
 export type PluginFeature = typeof FEATURES[number]
-
-/** Motion style tiers for the 动效 section (easing / duration / travel). */
-export const ANIMATION_STYLES = ['soft', 'standard', 'lively'] as const
-export type AnimationStyle = typeof ANIMATION_STYLES[number]
-
-/** Motion preset bundles for the 动效 section (whole-motion vs fade-only). */
-export const ANIMATION_PRESETS = ['balanced', 'focus'] as const
-export type AnimationPreset = typeof ANIMATION_PRESETS[number]
 
 /**
  * Runtime-editable theme fields (the "外观" section). Mirrors
@@ -149,15 +141,6 @@ export interface UiCustomSection extends ThemeSection, ShortcutsSection, History
    * loader config), seeded from the loader config's `features`.
    */
   features?: readonly PluginFeature[]
-  /**
-   * Whether interface motion is on (the 动效 section's master switch). When
-   * absent, the animation feature runs with its defaults (on).
-   */
-  animationEnabled?: boolean
-  /** Motion style tier: easing, duration and travel distance. */
-  animationStyle?: AnimationStyle
-  /** Motion preset: balanced (full motion) or focus (fade-only, no travel). */
-  animationPreset?: AnimationPreset
   /**
    * Marketplace catalog source(s): raw manifest JSON URL(s) and/or GitHub
    * repo URL(s), comma/newline separated. Each GitHub repo is probed for its
