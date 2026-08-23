@@ -1,7 +1,7 @@
 {
   "name": "@ha-na-bi/dsh-client-ui-custom",
-  "description": "客制化DSH（Custom DSH）: web-surface theming (wallpaper, frosted glass, accent, translucent surfaces), configurable keyboard shortcuts (new conversation / model / thinking effort / composer gestures / usage panel), and an app-usage panel. Zero shell edits.",
-  "version": "0.1.0-rc.5",
+  "description": "客制化DSH（Custom DSH）: web-surface theming (wallpaper, frosted glass, accent, translucent surfaces), configurable keyboard shortcuts (new conversation / model / thinking effort / composer gestures / usage panel), an app-usage panel, and entrance motion for conversations, the sidebar, and new conversations. Zero shell edits.",
+  "version": "0.1.0-rc.6",
   "publishConfig": {
     "access": "public"
   },
