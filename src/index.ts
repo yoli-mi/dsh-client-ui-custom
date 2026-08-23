@@ -7,10 +7,10 @@ import type { Context } from '@deepseek-ai/cordis'
 import { settingsNamespace } from '@deepseek-ai/dsh-settings'
 import z from '@deepseek-ai/schemastery'
 import {
-  DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_POSITION, FEATURES, HISTORY_POSITIONS, UI_CUSTOM_SETTINGS_NS,
+  ANIMATION_PRESETS, ANIMATION_STYLES, DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_POSITION, FEATURES, HISTORY_POSITIONS, UI_CUSTOM_SETTINGS_NS,
 } from './shared.ts'
 import type { ShortcutConfig } from './client/config.ts'
-import type { HistoryPosition, PluginFeature, ThemeSection } from './shared.ts'
+import type { AnimationPreset, AnimationStyle, HistoryPosition, PluginFeature, ThemeSection } from './shared.ts'
 
 /** The full ui-custom section schema (schemastery defaults = the plugin's neutral defaults). */
 const UiCustomSectionSchema = z.object({
@@ -70,6 +70,10 @@ const UiCustomSectionSchema = z.object({
   // feature whitelist: which independently selectable features mount on the
   // web client (absent/empty = all; see resolveFeatures on the client side)
   features: z.array(z.union([...FEATURES])).default([]),
+  // motion (the 动效 section): master switch, style tier, preset bundle
+  animationEnabled: z.boolean().default(true),
+  animationStyle: z.union([...ANIMATION_STYLES]).default('standard'),
+  animationPreset: z.union([...ANIMATION_PRESETS]).default('balanced'),
 })
 
 /** Plugin config shape accepted at the loader layer (flat theme + nested shortcuts). */
@@ -81,6 +85,12 @@ interface UiCustomConfig extends Partial<ThemeSection> {
    * the listed features register on the web client.
    */
   features?: readonly PluginFeature[]
+  /** Whether interface motion is on (动效 section; absent = on). */
+  animationEnabled?: boolean
+  /** Motion style tier: 'soft' | 'standard' | 'lively'. */
+  animationStyle?: AnimationStyle
+  /** Motion preset: 'balanced' (full motion) | 'focus' (fade-only). */
+  animationPreset?: AnimationPreset
   shortcuts?: Partial<ShortcutConfig>
   /** History strip recent-turns limit (0 = show all). */
   historyLimit?: number
@@ -156,6 +166,9 @@ export function apply(ctx: Context, config?: UiCustomConfig): void {
         discoverSort: config?.discoverSort ?? 'stars',
         discoverLimit: config?.discoverLimit ?? 30,
         features: config?.features ? [...config.features] : [],
+        animationEnabled: config?.animationEnabled ?? true,
+        animationStyle: config?.animationStyle ?? 'standard',
+        animationPreset: config?.animationPreset ?? 'balanced',
       },
     })
   })
