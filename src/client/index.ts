@@ -72,6 +72,7 @@ import { MARKDOWN_NS, zh as markdownZh, en as markdownEn } from './markdown/mark
 import { MarkdownRenderRow, type MarkdownRenderRowInjected } from './markdown/MarkdownRenderRow.tsx'
 import { UserMarkdownNodeView, type MarkdownRenderInjected } from './markdown/UserMarkdownNodeView.tsx'
 import './custom.module.css'
+import './animation/animation.module.css'
 
 export type { CustomThemeConfig } from './config.ts'
 export type { ThemePreset } from './presets.ts'
@@ -551,6 +552,13 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
       locale: 'conversation',
       inject: (): MarkdownRenderInjected => ({ hooks: { mdRender: scope } }),
     }, UserMarkdownNodeView))
+  }
+
+  // ── 动画：打开 data-dsu-anim 让注入的动画样式生效（见 animation.module.css）。
+  // 样式无条件注入但全部以 html[data-dsu-anim] 为门控，所以只有本功能启用
+  // 时界面元素才运动。
+  if (enabled('animation')) {
+    document.documentElement.dataset.dsuAnim = '1'
   }
   }
 
