@@ -17,9 +17,9 @@
  *
  * Feature selection (config.ts resolveFeatures / shared.ts FEATURES): each
  * independently selectable feature (history / markdown / appearance /
- * marketplace / shortcuts / usage) mounts its own settings rows, pages and
- * DOM effects. The loader config's `features` whitelist decides which mount;
- * absent or empty = everything (backward compatible).
+ * marketplace / shortcuts / usage / motion) mounts its own settings rows,
+ * pages and DOM effects. The loader config's `features` whitelist decides
+ * which mount; absent or empty = everything (backward compatible).
  */
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client';
 import { type CustomThemeConfig } from './config.ts';

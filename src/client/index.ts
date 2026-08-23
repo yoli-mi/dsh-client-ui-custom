@@ -17,9 +17,9 @@
  *
  * Feature selection (config.ts resolveFeatures / shared.ts FEATURES): each
  * independently selectable feature (history / markdown / appearance /
- * marketplace / shortcuts / usage) mounts its own settings rows, pages and
- * DOM effects. The loader config's `features` whitelist decides which mount;
- * absent or empty = everything (backward compatible).
+ * marketplace / shortcuts / usage / motion) mounts its own settings rows,
+ * pages and DOM effects. The loader config's `features` whitelist decides
+ * which mount; absent or empty = everything (backward compatible).
  */
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 import type { ConnectionHandle, SessionId } from '@deepseek-ai/dsh-api-remotes/client'
@@ -42,7 +42,12 @@ import {
   buildShortcutMap, comboEnabled, isEditableTarget, matchesKeyCombo, parseKeyCombo,
   type KeyCombo, type ShortcutAction,
 } from './shortcuts.ts'
-import { UI_CUSTOM_SETTINGS_NS, type ModelShortcut, type PluginFeature, type ThemeSection, type UiCustomSection } from '../shared.ts'
+import {
+  DEFAULT_MOTION_STYLE, DEFAULT_NEW_CHAT_MOTION_STYLE, DEFAULT_SIDEBAR_MOTION_STYLE,
+  MOTION_PRESETS, isMotionPresetId, isMotionStyle, isNewChatMotionStyle, isSidebarMotionStyle,
+  UI_CUSTOM_SETTINGS_NS,
+  type ModelShortcut, type PluginFeature, type ThemeSection, type UiCustomSection,
+} from '../shared.ts'
 import { usageOverlay } from './usage-overlay.ts'
 import { NS, en, zh } from './locales.ts'
 import { USAGE_NS, en as usageEn, zh as usageZh } from './usage/usage-locales.ts'
@@ -71,6 +76,9 @@ import type { PinTurnInjected } from './pin/contract.ts'
 import { MARKDOWN_NS, zh as markdownZh, en as markdownEn } from './markdown/markdown-locales.ts'
 import { MarkdownRenderRow, type MarkdownRenderRowInjected } from './markdown/MarkdownRenderRow.tsx'
 import { UserMarkdownNodeView, type MarkdownRenderInjected } from './markdown/UserMarkdownNodeView.tsx'
+import { MOTION_NS, zh as motionZh, en as motionEn } from './motion/motion-locales.ts'
+import { MotionSection, type MotionSectionInjected } from './motion/MotionSection.tsx'
+import { installConversationEntrance } from './motion/motion.ts'
 import './custom.module.css'
 
 export type { CustomThemeConfig } from './config.ts'
@@ -168,6 +176,91 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
     observer.observe(document.body, { attributes: true, attributeFilter: ['data-ds-dark-theme'] })
     return () => { observer.disconnect() }
   }, 'ui-custom: color-scheme follows the active theme')
+
+  // ── 动效：对话入场动效引擎 ─────────────────────────────────────────────
+  // Starts before the settings scope resolves so the very first conversation
+  // render is captured (batches buffer until the whitelist + toggle land).
+  // The isEnabled check gates on both: the whitelist (feature excluded =
+  // inert) and the 动效 settings-section toggle.
+  const motionEngine = installConversationEntrance({
+    getState: () => {
+      const snapshot = scope.getSnapshot()
+      // A blank current session = a brand-new conversation (its main dialog
+      // animates in); the engine reads this to gate the composer entrance.
+      const sessionList = ctx.sessions.list.getSnapshot()
+      const blank = sessionList.current !== undefined
+        && sessionList.byId[sessionList.current]?.blank === true
+      const motionOn = resolveFeatures(snapshot.value ?? {}).has('motion')
+      if (snapshot.status === 'ready' && snapshot.value !== undefined) {
+        const value = snapshot.value
+        return {
+          transcript: motionOn && (value.motionEnabled ?? true),
+          sidebar: motionOn && (value.sidebarMotionEnabled ?? true),
+          selection: motionOn && (value.selectionMotionEnabled ?? true),
+          newChat: motionOn && (value.newChatMotionEnabled ?? true),
+          style: isMotionStyle(value.motionStyle) ? value.motionStyle : DEFAULT_MOTION_STYLE,
+          sidebarStyle: isSidebarMotionStyle(value.sidebarMotionStyle)
+            ? value.sidebarMotionStyle
+            : DEFAULT_SIDEBAR_MOTION_STYLE,
+          newChatStyle: isNewChatMotionStyle(value.newChatMotionStyle)
+            ? value.newChatMotionStyle
+            : DEFAULT_NEW_CHAT_MOTION_STYLE,
+          blank,
+        }
+      }
+      // Not resolved yet: stay inert and let the engine buffer the first
+      // load, which flushes when the settings land. Unavailable (namespace
+      // not exposed / memory mode): fall back to the default-on state.
+      const fallback = snapshot.status === 'unavailable'
+      return {
+        transcript: fallback,
+        sidebar: fallback,
+        selection: fallback,
+        newChat: fallback,
+        style: DEFAULT_MOTION_STYLE,
+        sidebarStyle: DEFAULT_SIDEBAR_MOTION_STYLE,
+        newChatStyle: DEFAULT_NEW_CHAT_MOTION_STYLE,
+        blank,
+      }
+    },
+    subscribe: (listener) => {
+      // Both the settings scope and the session ledger feed the engine:
+      // settings gate enable/style, sessions gate the blank flag.
+      const unsubscribeScope = scope.subscribe(listener)
+      const unsubscribeSessions = ctx.sessions.list.subscribe(listener)
+      return () => {
+        unsubscribeScope()
+        unsubscribeSessions()
+      }
+    },
+  })
+  ctx.effect(() => motionEngine.dispose, 'ui-custom: motion engine teardown')
+
+  // Settings-panel motion gate: the host settings shell reads this attribute
+  // to enable/disable its dialog expansion, nav-highlight and page-switch
+  // animations. Defaults ON (attribute present) until the scope resolves.
+  const syncSettingsMotion = (): void => {
+    const snapshot = scope.getSnapshot()
+    const on = snapshot.status === 'ready' && snapshot.value !== undefined
+      ? resolveFeatures(snapshot.value).has('motion') && (snapshot.value.settingsMotionEnabled ?? true)
+      : true
+    document.documentElement.dataset.dsuSettingsMotion = on ? 'on' : 'off'
+  }
+  syncSettingsMotion()
+  ctx.effect(() => scope.subscribe(syncSettingsMotion), 'ui-custom: settings-motion gate sync')
+  // Every conversation open/switch force-replays the entrance (the observer
+  // covers mounts it can correlate; this covers the rest), so a conversation
+  // animates on each visit, not just the first.
+  let lastSessionId: string | undefined
+  const syncSession = (): void => {
+    const current = ctx.sessions.list.getSnapshot().current
+    if (current === lastSessionId) return
+    lastSessionId = current
+    if (current !== undefined) motionEngine.notifySessionSwitch()
+  }
+  syncSession()
+  const unsubscribeSessions = ctx.sessions.list.subscribe(syncSession)
+  ctx.effect(() => unsubscribeSessions, 'ui-custom: session switch signal')
 
   // ── Feature registration ──────────────────────────────────────────────────
   // The whitelist arrives through the settings scope's first snapshot (which
@@ -551,6 +644,48 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
       locale: 'conversation',
       inject: (): MarkdownRenderInjected => ({ hooks: { mdRender: scope } }),
     }, UserMarkdownNodeView))
+  }
+
+  // ── 动效：settings section + 开关（引擎在 apply 时已启动）────────────────
+  if (enabled('motion')) {
+    ctx.effect(
+      () => ctx.locale.register(MOTION_NS, { zh: motionZh, en: motionEn }),
+      'ui-custom: motion dictionaries',
+    )
+    const motionT = ctx.locale.bind(MOTION_NS)
+    ctx.slots.inject('settings.section', () => ctx.slots.register({
+      name: 'settings.section',
+      id: 'motion',
+      order: 30,
+      label: () => motionT('nav'),
+      locale: MOTION_NS,
+      inject: (): MotionSectionInjected => ({
+        hooks: { motion: scope },
+        setMotionEnabled: (value) => { void scope.set('motionEnabled', value) },
+        setMotionStyle: (style) => { void scope.set('motionStyle', style) },
+        setSidebarMotionEnabled: (value) => { void scope.set('sidebarMotionEnabled', value) },
+        setSidebarMotionStyle: (style) => { void scope.set('sidebarMotionStyle', style) },
+        setSelectionMotionEnabled: (value) => { void scope.set('selectionMotionEnabled', value) },
+        setNewChatMotionEnabled: (value) => { void scope.set('newChatMotionEnabled', value) },
+        setNewChatMotionStyle: (style) => { void scope.set('newChatMotionStyle', style) },
+        setSettingsMotionEnabled: (value) => { void scope.set('settingsMotionEnabled', value) },
+        applyMotionPreset: (presetId) => {
+          if (!isMotionPresetId(presetId)) return
+          const config = MOTION_PRESETS.find(preset => preset.id === presetId)?.config
+          if (config === undefined) return
+          // One queued write per field (the scope preserves ordering); every
+          // toggle + style lands as one atomic-looking preset application.
+          void scope.set('motionEnabled', config.motionEnabled)
+          void scope.set('motionStyle', config.motionStyle)
+          void scope.set('sidebarMotionEnabled', config.sidebarMotionEnabled)
+          void scope.set('sidebarMotionStyle', config.sidebarMotionStyle)
+          void scope.set('selectionMotionEnabled', config.selectionMotionEnabled)
+          void scope.set('newChatMotionEnabled', config.newChatMotionEnabled)
+          void scope.set('newChatMotionStyle', config.newChatMotionStyle)
+          void scope.set('settingsMotionEnabled', config.settingsMotionEnabled)
+        },
+      }),
+    }, MotionSection))
   }
   }
 

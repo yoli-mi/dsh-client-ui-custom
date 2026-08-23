@@ -14,11 +14,11 @@
 
 ### 简介
 
-Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历史记录条、用户消息md渲染、外观调试、插件市场、快捷键和用量统计功能。
+Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历史记录条、用户消息md渲染、外观调试、插件市场、快捷键、用量统计和动效功能。
 
 - **修改了通用设置项** —— 在「设置 → 通用」里新增了历史记录条（位置、数量）和用户消息 Markdown 渲染开关；
 - **修改了插件项** —— 在「设置 → 插件」里新增了「插件市场」；
-- **新增了三个设置页** —— 「外观」「快捷键」「用量统计」。
+- **新增了四个设置页** —— 「外观」「快捷键」「用量统计」「动效」。
 
 所有功能默认关闭，不配置时保持与原生界面一致，全程零 shell 改动。
 
@@ -28,10 +28,10 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 ### 功能选择（按需安装）
 
-插件由六个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
+插件由七个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
 `usage`（用量统计）、`history`（历史记录条）、`markdown`（用户消息 Markdown
-渲染）、`marketplace`（插件市场）。可在插件配置里用 `features` 白名单选择要安装的
-功能：
+渲染）、`marketplace`（插件市场）、`motion`（动效）。可在插件配置里用 `features`
+白名单选择要安装的功能：
 
 ```yaml
 - id: ui-custom
@@ -40,7 +40,7 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
     features: [shortcuts, usage]   # 只安装「快捷键」+「用量统计」
 ```
 
-`features` 缺省或为空时，六个功能全部启用。
+`features` 缺省或为空时，七个功能全部启用。
 
 ---
 
@@ -51,6 +51,7 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 | 设置 → 外观 | 新增页面 | 主题定制，包括壁纸、玻璃、强调色、表面不透明度、字体与质感 |
 | 设置 → 快捷键 | 新增页面 | 自定义快捷键，包括新建对话、切换模型、思考强度等 |
 | 设置 → 应用用量 | 新增页面 | 用量统计，使用四窗口聚合、趋势图，展示会话用量排行 |
+| 设置 → 动效 | 新增页面 | 对话/侧边栏/新建对话入场动效与选中框动效，含三套一键预设 |
 | 设置 → 通用 | 修改原有页 | 新增浮动历史条（可调节位置，数量）、用户消息 Markdown 渲染开关 |
 | 设置 → 插件 | 修改原有页 | 新增「插件市场」，收录第三方插件目录 |
 
@@ -269,7 +270,7 @@ packages/client/ui-custom/
 │   ├── presets.ts        # ThemePreset 注册表 —— 美术选择的扩展面
 │   ├── apply.ts          # config → DOM：--dsu-* 变量、customCss、customVars
 │   ├── custom.module.css # 消费 --dsu-* 变量的 token 覆盖
-│   └── …                 # 其余功能子目录（appearance/ settings/ usage/ marketplace/ history/ pin/ markdown/）
+│   └── …                 # 其余功能子目录（appearance/ settings/ usage/ marketplace/ history/ pin/ markdown/ motion/）
 ├── tests/                # 配置管线单元测试
 └── README.md             # 本文档（中文 / English 双语）
 ```
@@ -302,10 +303,11 @@ to stock, with zero shell modifications.
 
 ### Feature selection (install on demand)
 
-The plugin is composed of six **independent** feature modules: `appearance`,
+The plugin is composed of seven **independent** feature modules: `appearance`,
 `shortcuts`, `usage` (usage statistics), `history` (history strip), `markdown`
-(user-message Markdown rendering), and `marketplace` (plugin marketplace). Use
-the `features` whitelist in the plugin config to choose which to install:
+(user-message Markdown rendering), `marketplace` (plugin marketplace), and
+`motion` (entrance animations). Use the `features` whitelist in the plugin
+config to choose which to install:
 
 ```yaml
 - id: ui-custom
@@ -314,7 +316,7 @@ the `features` whitelist in the plugin config to choose which to install:
     features: [shortcuts, usage]   # install only shortcuts + usage stats
 ```
 
-When `features` is absent or empty, all six features are enabled.
+When `features` is absent or empty, all seven features are enabled.
 
 ---
 
@@ -325,6 +327,7 @@ When `features` is absent or empty, all six features are enabled.
 | Settings → Appearance | new page | custom theming: wallpaper, glass, accent, surface opacity, fonts & texture |
 | Settings → Shortcuts | new page | custom keybindings: new conversation, model switch, thinking effort, direct model jumps, etc. |
 | Settings → App Usage | new page | usage stats: aggregated over a selectable time span, with a trend chart and session ranking |
+| Settings → Motion | new page | entrance motion for conversation / sidebar / new conversation, selection box, three one-click presets |
 | Settings → General | added rows | floating history strip (adjustable position / count), user-message Markdown toggle |
 | Settings → Plugins | added tab | "Plugin Marketplace": third-party plugin catalog |
 

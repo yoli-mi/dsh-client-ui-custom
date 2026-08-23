@@ -13,7 +13,7 @@ export const UI_CUSTOM_SETTINGS_NS = 'ui-custom'
  * owns its settings rows / pages, so an unlisted feature is simply absent
  * from the Settings surface and the DOM.
  */
-export const FEATURES = ['history', 'markdown', 'appearance', 'marketplace', 'shortcuts', 'usage'] as const
+export const FEATURES = ['history', 'markdown', 'appearance', 'marketplace', 'shortcuts', 'usage', 'motion'] as const
 
 /** One opt-in plugin feature id (see {@link FEATURES}). */
 export type PluginFeature = typeof FEATURES[number]
@@ -71,6 +71,49 @@ export interface ThemeSection {
    * plain-text display.
    */
   renderUserMarkdown?: boolean
+  /**
+   * Conversation entrance motion: when a conversation loads or switches,
+   * freshly mounted messages fade in with a subtle rise instead of popping in
+   * at once. Defaults to true; the 动效 settings section can turn it off.
+   */
+  motionEnabled?: boolean
+  /**
+   * Which entrance-motion style fresh messages use ('fade-up' default;
+   * see MOTION_STYLES). Only meaningful while motionEnabled is on.
+   */
+  motionStyle?: MotionStyle
+  /**
+   * Which entrance-motion style the sidebar tree uses ('slide-left' default;
+   * see SIDEBAR_MOTION_STYLES). Independently selectable from the
+   * transcript's style — the sidebar rail suits horizontal motion.
+   */
+  sidebarMotionStyle?: SidebarMotionStyle
+  /**
+   * Sidebar motion (initial tree entrance + workspace-group expand rows).
+   * Defaults to true; the 动效 settings section can turn it off.
+   */
+  sidebarMotionEnabled?: boolean
+  /**
+   * The persistent selection-box trace on the active sidebar row. Defaults
+   * to true; the 动效 settings section can turn it off.
+   */
+  selectionMotionEnabled?: boolean
+  /**
+   * The blank-session entrance (a brand-new conversation's welcome dialog
+   * fades in). Defaults to true; the 动效 settings section can turn it off.
+   */
+  newChatMotionEnabled?: boolean
+  /**
+   * Which entrance style the blank-session (new conversation) dialog uses
+   * ('reveal' default; see NEW_CHAT_MOTION_STYLES).
+   */
+  newChatMotionStyle?: NewChatMotionStyle
+  /**
+   * Settings-panel motion: the settings dialog expands from the lower-left,
+   * nav rows fade their highlight, and section pages fade in on switch.
+   * Defaults to true; the 动效 settings section can turn it off.
+   */
+  settingsMotionEnabled?: boolean
 }
 
 /** One one-to-one model shortcut: a key combo that jumps to a specific model. */
@@ -106,6 +149,146 @@ export interface ShortcutsSection {
 /** Where the floating history strip can sit relative to the conversation. */
 export const HISTORY_POSITIONS = ['left', 'right', 'off'] as const
 
+/** One selectable conversation entrance-motion style. */
+export const MOTION_STYLES = ['fade-up', 'fade', 'rise-scale', 'slide-in', 'blur-in', 'scale-in'] as const
+
+/** One entrance-motion style id (see {@link MOTION_STYLES}). */
+export type MotionStyle = typeof MOTION_STYLES[number]
+
+/** Default entrance style when the user-settings document has no override. */
+export const DEFAULT_MOTION_STYLE: MotionStyle = 'fade-up'
+
+/** Guard for a MotionStyle value (unknown ids fall back to the default). */
+export const isMotionStyle = (value: unknown): value is MotionStyle =>
+  typeof value === 'string' && (MOTION_STYLES as readonly string[]).includes(value)
+
+/**
+ * Selectable sidebar entrance-motion styles. The sidebar is a horizontal
+ * rail, so its motion is horizontal (slide from the screen edge) or a plain
+ * cross-fade — deliberately distinct from the transcript's vertical styles.
+ * The tree rows also suit a drop-in (slide-down) or a vertical unfold
+ * (expand), both of which read as rows settling into the list.
+ */
+export const SIDEBAR_MOTION_STYLES = ['slide-left', 'fade', 'expand', 'slide-down'] as const
+
+/**
+ * Selectable new-conversation entrance styles. The welcome dialog is a LARGE
+ * surface, so its motion is deliberately gentler than the transcript's:
+ * slower (420ms), barely-there travel (4px) and no pronounced scaling or
+ * sideways slides — a large block moving visibly reads as mechanical.
+ * `zoom` keeps the same discipline: a whisper-quiet scale with no travel.
+ */
+export const NEW_CHAT_MOTION_STYLES = ['reveal', 'fade', 'bloom', 'zoom'] as const
+
+/** One new-conversation entrance style id (see {@link NEW_CHAT_MOTION_STYLES}). */
+export type NewChatMotionStyle = typeof NEW_CHAT_MOTION_STYLES[number]
+
+/** Default new-conversation style when the user-settings document has no override. */
+export const DEFAULT_NEW_CHAT_MOTION_STYLE: NewChatMotionStyle = 'reveal'
+
+/** Guard for a NewChatMotionStyle value (unknown ids fall back to the default). */
+export const isNewChatMotionStyle = (value: unknown): value is NewChatMotionStyle =>
+  typeof value === 'string' && (NEW_CHAT_MOTION_STYLES as readonly string[]).includes(value)
+
+/** One sidebar entrance-motion style id (see {@link SIDEBAR_MOTION_STYLES}). */
+export type SidebarMotionStyle = typeof SIDEBAR_MOTION_STYLES[number]
+
+/** Default sidebar style when the user-settings document has no override. */
+export const DEFAULT_SIDEBAR_MOTION_STYLE: SidebarMotionStyle = 'slide-left'
+
+/** Guard for a SidebarMotionStyle value (unknown ids fall back to the default). */
+export const isSidebarMotionStyle = (value: unknown): value is SidebarMotionStyle =>
+  typeof value === 'string' && (SIDEBAR_MOTION_STYLES as readonly string[]).includes(value)
+
+/**
+ * One curated motion combo: a single click applies the whole configuration
+ * (every toggle + every style), so a user who wants motion without tuning each
+ * option can adopt a preset as-is. Presets are pure configuration bundles —
+ * they are not persisted as a field; the applied values land in the ordinary
+ * settings document and stay editable afterwards.
+ */
+export interface MotionPresetConfig {
+  /** Conversation entrance-motion toggle. */
+  motionEnabled: boolean
+  /** Transcript entrance style. */
+  motionStyle: MotionStyle
+  /** Sidebar tree entrance toggle. */
+  sidebarMotionEnabled: boolean
+  /** Sidebar tree entrance style. */
+  sidebarMotionStyle: SidebarMotionStyle
+  /** Persistent selection-box toggle. */
+  selectionMotionEnabled: boolean
+  /** New-conversation entrance toggle. */
+  newChatMotionEnabled: boolean
+  /** New-conversation entrance style. */
+  newChatMotionStyle: NewChatMotionStyle
+  /** Settings-shell motion toggle. */
+  settingsMotionEnabled: boolean
+}
+
+/** One curated motion-combo preset id (see {@link MOTION_PRESETS}). */
+export type MotionPresetId = 'fluid' | 'elegant' | 'minimal'
+
+/** One curated motion-combo preset (see {@link MOTION_PRESETS}). */
+export interface MotionPreset {
+  /** Stable preset id (labels live in the motion locales). */
+  id: MotionPresetId
+  /** The full motion configuration the preset applies. */
+  config: MotionPresetConfig
+}
+
+/**
+ * The three curated motion presets, in display order. Personality:
+ * fluid — a lively cascade (rise-scale rows, sliding sidebar, everything on);
+ * elegant — a quiet high-end feel (soft blur, plain sidebar fade, bloom);
+ * minimal — barely-there fades with the selection box and settings motion off.
+ */
+export const MOTION_PRESETS: readonly MotionPreset[] = [
+  {
+    id: 'fluid',
+    config: {
+      motionEnabled: true,
+      motionStyle: 'rise-scale',
+      sidebarMotionEnabled: true,
+      sidebarMotionStyle: 'slide-left',
+      selectionMotionEnabled: true,
+      newChatMotionEnabled: true,
+      newChatMotionStyle: 'reveal',
+      settingsMotionEnabled: true,
+    },
+  },
+  {
+    id: 'elegant',
+    config: {
+      motionEnabled: true,
+      motionStyle: 'blur-in',
+      sidebarMotionEnabled: true,
+      sidebarMotionStyle: 'fade',
+      selectionMotionEnabled: true,
+      newChatMotionEnabled: true,
+      newChatMotionStyle: 'bloom',
+      settingsMotionEnabled: true,
+    },
+  },
+  {
+    id: 'minimal',
+    config: {
+      motionEnabled: true,
+      motionStyle: 'fade',
+      sidebarMotionEnabled: true,
+      sidebarMotionStyle: 'fade',
+      selectionMotionEnabled: false,
+      newChatMotionEnabled: true,
+      newChatMotionStyle: 'fade',
+      settingsMotionEnabled: false,
+    },
+  },
+] as const
+
+/** Guard for a MotionPresetId value. */
+export const isMotionPresetId = (value: unknown): value is MotionPresetId =>
+  typeof value === 'string' && (MOTION_PRESETS as readonly MotionPreset[]).some(preset => preset.id === value)
+
 /** One selectable history-strip side ('off' hides the strip). */
 export type HistoryPosition = typeof HISTORY_POSITIONS[number]
 
@@ -136,9 +319,9 @@ export interface UiCustomSection extends ThemeSection, ShortcutsSection, History
   /**
    * Feature whitelist: which independently selectable features mount on the
    * web client (history / markdown / appearance / marketplace / shortcuts /
-   * usage). Absent or empty = every feature; present = only the listed ones
-   * register. Lives in the settings namespace (the client never receives the
-   * loader config), seeded from the loader config's `features`.
+   * usage / motion). Absent or empty = every feature; present = only the
+   * listed ones register. Lives in the settings namespace (the client never
+   * receives the loader config), seeded from the loader config's `features`.
    */
   features?: readonly PluginFeature[]
   /**

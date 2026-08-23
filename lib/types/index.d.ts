@@ -5,14 +5,14 @@
  */
 import type { Context } from '@deepseek-ai/cordis';
 import type { ShortcutConfig } from './client/config.ts';
-import type { HistoryPosition, PluginFeature, ThemeSection } from './shared.ts';
+import type { HistoryPosition, MotionStyle, NewChatMotionStyle, PluginFeature, SidebarMotionStyle, ThemeSection } from './shared.ts';
 /** Plugin config shape accepted at the loader layer (flat theme + nested shortcuts). */
 interface UiCustomConfig extends Partial<ThemeSection> {
     /**
      * Feature whitelist: which independently selectable features to mount
-     * (history / markdown / appearance / marketplace / shortcuts / usage).
-     * Absent or empty = every feature (backward compatible); present = only
-     * the listed features register on the web client.
+     * (history / markdown / appearance / marketplace / shortcuts / usage /
+     * motion). Absent or empty = every feature (backward compatible); present =
+     * only the listed features register on the web client.
      */
     features?: readonly PluginFeature[];
     shortcuts?: Partial<ShortcutConfig>;
@@ -22,6 +22,22 @@ interface UiCustomConfig extends Partial<ThemeSection> {
     historyPosition?: HistoryPosition;
     /** Pinned turn numbers per session (ignore the strip's count limit). */
     pinnedTurns?: Record<string, number[]>;
+    /** Conversation entrance motion (default true). */
+    motionEnabled?: boolean;
+    /** Conversation entrance-motion style (default 'fade-up'). */
+    motionStyle?: MotionStyle;
+    /** Sidebar entrance-motion style (default 'slide-left'). */
+    sidebarMotionStyle?: SidebarMotionStyle;
+    /** Sidebar motion (initial tree + group expand), default true. */
+    sidebarMotionEnabled?: boolean;
+    /** Persistent selection-box trace on the active row, default true. */
+    selectionMotionEnabled?: boolean;
+    /** Blank-session (new conversation) entrance, default true. */
+    newChatMotionEnabled?: boolean;
+    /** Blank-session entrance style (default 'reveal'). */
+    newChatMotionStyle?: NewChatMotionStyle;
+    /** Settings-panel motion (dialog expansion, nav highlight, page switch), default true. */
+    settingsMotionEnabled?: boolean;
     /**
      * Marketplace catalog source(s): raw manifest JSON URL(s) and/or GitHub
      * repo URL(s), comma/newline separated. Seeded into the settings namespace

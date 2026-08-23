@@ -7,10 +7,12 @@ import type { Context } from '@deepseek-ai/cordis'
 import { settingsNamespace } from '@deepseek-ai/dsh-settings'
 import z from '@deepseek-ai/schemastery'
 import {
-  DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_POSITION, FEATURES, HISTORY_POSITIONS, UI_CUSTOM_SETTINGS_NS,
+  DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_POSITION, DEFAULT_MOTION_STYLE, DEFAULT_NEW_CHAT_MOTION_STYLE,
+  DEFAULT_SIDEBAR_MOTION_STYLE, FEATURES, HISTORY_POSITIONS, isMotionStyle, isNewChatMotionStyle,
+  isSidebarMotionStyle, MOTION_STYLES, NEW_CHAT_MOTION_STYLES, SIDEBAR_MOTION_STYLES, UI_CUSTOM_SETTINGS_NS,
 } from './shared.ts'
 import type { ShortcutConfig } from './client/config.ts'
-import type { HistoryPosition, PluginFeature, ThemeSection } from './shared.ts'
+import type { HistoryPosition, MotionStyle, NewChatMotionStyle, PluginFeature, SidebarMotionStyle, ThemeSection } from './shared.ts'
 
 /** The full ui-custom section schema (schemastery defaults = the plugin's neutral defaults). */
 const UiCustomSectionSchema = z.object({
@@ -42,6 +44,15 @@ const UiCustomSectionSchema = z.object({
   myPresets: z.dict(z.string()).default({}),
   // render the user's own messages as Markdown (General-settings toggle)
   renderUserMarkdown: z.boolean().default(false),
+  // conversation entrance motion (动效 settings-section toggle + styles)
+  motionEnabled: z.boolean().default(true),
+  motionStyle: z.union([...MOTION_STYLES]).default(DEFAULT_MOTION_STYLE),
+  sidebarMotionStyle: z.union([...SIDEBAR_MOTION_STYLES]).default(DEFAULT_SIDEBAR_MOTION_STYLE),
+  sidebarMotionEnabled: z.boolean().default(true),
+  selectionMotionEnabled: z.boolean().default(true),
+  newChatMotionEnabled: z.boolean().default(true),
+  newChatMotionStyle: z.union([...NEW_CHAT_MOTION_STYLES]).default(DEFAULT_NEW_CHAT_MOTION_STYLE),
+  settingsMotionEnabled: z.boolean().default(true),
   // shortcuts
   newConversation: z.string().default(''),
   switchModel: z.string().default(''),
@@ -76,9 +87,9 @@ const UiCustomSectionSchema = z.object({
 interface UiCustomConfig extends Partial<ThemeSection> {
   /**
    * Feature whitelist: which independently selectable features to mount
-   * (history / markdown / appearance / marketplace / shortcuts / usage).
-   * Absent or empty = every feature (backward compatible); present = only
-   * the listed features register on the web client.
+   * (history / markdown / appearance / marketplace / shortcuts / usage /
+   * motion). Absent or empty = every feature (backward compatible); present =
+   * only the listed features register on the web client.
    */
   features?: readonly PluginFeature[]
   shortcuts?: Partial<ShortcutConfig>
@@ -88,6 +99,22 @@ interface UiCustomConfig extends Partial<ThemeSection> {
   historyPosition?: HistoryPosition
   /** Pinned turn numbers per session (ignore the strip's count limit). */
   pinnedTurns?: Record<string, number[]>
+  /** Conversation entrance motion (default true). */
+  motionEnabled?: boolean
+  /** Conversation entrance-motion style (default 'fade-up'). */
+  motionStyle?: MotionStyle
+  /** Sidebar entrance-motion style (default 'slide-left'). */
+  sidebarMotionStyle?: SidebarMotionStyle
+  /** Sidebar motion (initial tree + group expand), default true. */
+  sidebarMotionEnabled?: boolean
+  /** Persistent selection-box trace on the active row, default true. */
+  selectionMotionEnabled?: boolean
+  /** Blank-session (new conversation) entrance, default true. */
+  newChatMotionEnabled?: boolean
+  /** Blank-session entrance style (default 'reveal'). */
+  newChatMotionStyle?: NewChatMotionStyle
+  /** Settings-panel motion (dialog expansion, nav highlight, page switch), default true. */
+  settingsMotionEnabled?: boolean
   /**
    * Marketplace catalog source(s): raw manifest JSON URL(s) and/or GitHub
    * repo URL(s), comma/newline separated. Seeded into the settings namespace
@@ -140,6 +167,18 @@ export function apply(ctx: Context, config?: UiCustomConfig): void {
         darkAccent: config?.darkAccent ?? '',
         myPresets: config?.myPresets ?? {},
         renderUserMarkdown: config?.renderUserMarkdown ?? false,
+        motionEnabled: config?.motionEnabled ?? true,
+        motionStyle: isMotionStyle(config?.motionStyle) ? config.motionStyle : DEFAULT_MOTION_STYLE,
+        sidebarMotionStyle: isSidebarMotionStyle(config?.sidebarMotionStyle)
+          ? config.sidebarMotionStyle
+          : DEFAULT_SIDEBAR_MOTION_STYLE,
+        sidebarMotionEnabled: config?.sidebarMotionEnabled ?? true,
+        selectionMotionEnabled: config?.selectionMotionEnabled ?? true,
+        newChatMotionEnabled: config?.newChatMotionEnabled ?? true,
+        newChatMotionStyle: isNewChatMotionStyle(config?.newChatMotionStyle)
+          ? config.newChatMotionStyle
+          : DEFAULT_NEW_CHAT_MOTION_STYLE,
+        settingsMotionEnabled: config?.settingsMotionEnabled ?? true,
         newConversation: shortcuts?.newConversation ?? '',
         switchModel: shortcuts?.switchModel ?? '',
         cycleThinking: shortcuts?.cycleThinking ?? '',

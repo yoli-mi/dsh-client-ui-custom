@@ -1,0 +1,133 @@
+/* Motion settings section: heading + intro (shortcuts-section rhythm), then
+   the toggle and style rows (general-settings-row rhythm, selector pill from
+   the history-position row). */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.intro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+/* Divider between the toggle row and the style row. */
+.rowDivider {
+  border-top: 1px solid var(--dsw-alias-border-l2);
+}
+
+/* The style row dims while the entrance motion is off. */
+.rowDisabled {
+  opacity: 0.5;
+}
+
+.rowText {
+  min-width: 0;
+}
+
+.title {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.switch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--dsw-alias-brand-primary);
+  cursor: pointer;
+}
+
+.selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 18px;
+  background: var(--dsw-alias-bg-module-platform);
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+}
+
+.selector:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.selector:disabled {
+  cursor: default;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.chevron {
+  flex: none;
+}
+
+/* Preset pill row: three one-click combos, the matching one highlighted with
+   the theme accent (segmented-control rhythm). */
+.presets {
+  display: inline-flex;
+  gap: 6px;
+  flex: none;
+}
+
+.preset {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 16px;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.preset:hover {
+  border-color: var(--dsw-alias-brand-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.presetActive {
+  border-color: var(--dsw-alias-brand-primary);
+  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent);
+  color: var(--dsw-alias-label-primary);
+}
