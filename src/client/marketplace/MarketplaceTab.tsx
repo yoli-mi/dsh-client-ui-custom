@@ -37,7 +37,7 @@ export function MarketplaceTab({ t, useMarketplace, install, refresh, setDiscove
   }, [state.copiedId])
 
   return (
-    <div className={css.section} data-dsu-motion="fade-up">
+    <div className={css.section}>
       <h2 className={css.heading}>{translator('title')}</h2>
       <p className={css.intro}>{translator('intro')}</p>
       <div className={css.toolbar}>
