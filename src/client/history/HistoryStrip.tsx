@@ -223,7 +223,12 @@ export function HistoryStrip({ useSession, loadOlder, sessionId, useHistoryLimit
     <div
       ref={stripRef}
       className={`${css.strip} ${position === 'left' ? css.stripLeft : css.stripRight}`}
+      data-dsu-motion="strip"
       style={{
+        // Enter from the strip's own edge (animation feature).
+        ...(position === 'left'
+          ? { '--dsu-strip-x': '-12px' } as React.CSSProperties
+          : { '--dsu-strip-x': '12px' } as React.CSSProperties),
         width: STRIP_WIDTH,
         // The left edge is the measured sidebar width; until the frame is
         // found the CSS fallback (left: 12px) applies for one frame at most.
