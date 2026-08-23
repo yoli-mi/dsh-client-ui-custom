@@ -28,10 +28,10 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
 
 ### 功能选择（按需安装）
 
-插件由六个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
+插件由七个**相互独立**的功能模块组成：`appearance`（外观）、`shortcuts`（快捷键）、
 `usage`（用量统计）、`history`（历史记录条）、`markdown`（用户消息 Markdown
-渲染）、`marketplace`（插件市场）。可在插件配置里用 `features` 白名单选择要安装的
-功能：
+渲染）、`marketplace`（插件市场）、`animation`（界面动画）。可在插件配置里用
+`features` 白名单选择要安装的功能：
 
 ```yaml
 - id: ui-custom
@@ -40,7 +40,7 @@ Dsh-client-ui-custom 是一个纯前端插件，它为用户提供了浮动历�
     features: [shortcuts, usage]   # 只安装「快捷键」+「用量统计」
 ```
 
-`features` 缺省或为空时，六个功能全部启用。
+`features` 缺省或为空时，七个功能全部启用。
 
 ---
 
@@ -302,10 +302,11 @@ to stock, with zero shell modifications.
 
 ### Feature selection (install on demand)
 
-The plugin is composed of six **independent** feature modules: `appearance`,
+The plugin is composed of seven **independent** feature modules: `appearance`,
 `shortcuts`, `usage` (usage statistics), `history` (history strip), `markdown`
-(user-message Markdown rendering), and `marketplace` (plugin marketplace). Use
-the `features` whitelist in the plugin config to choose which to install:
+(user-message Markdown rendering), `marketplace` (plugin marketplace), and
+`animation` (interface motion). Use the `features` whitelist in the plugin
+config to choose which to install:
 
 ```yaml
 - id: ui-custom
@@ -314,7 +315,7 @@ the `features` whitelist in the plugin config to choose which to install:
     features: [shortcuts, usage]   # install only shortcuts + usage stats
 ```
 
-When `features` is absent or empty, all six features are enabled.
+When `features` is absent or empty, all seven features are enabled.
 
 ---
 
