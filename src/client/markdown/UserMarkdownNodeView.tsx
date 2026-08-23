@@ -133,7 +133,7 @@ function UserBubbleActions({ text, time, t }: {
     <div className={css.actions}>
       {time !== undefined ? <span className={css.timeStart}>{formatClock(time, t)}</span> : null}
       <Tooltip label={copied ? t('copied') : t('copy')} side="bottom">
-        <button type="button" className={css.action} aria-label={copied ? t('copied') : t('copy')} onClick={onCopy}>
+        <button type="button" className={css.action} data-dsu-motion="press" aria-label={copied ? t('copied') : t('copy')} onClick={onCopy}>
           {copied ? <IconCheckOutline16 /> : <IconCopyOutline16 />}
         </button>
       </Tooltip>
@@ -154,7 +154,7 @@ function UserStyleBubble({ content, imageLoader, renderMarkdown, t, actions }: {
   const truncated = (total: number): string => t('json.truncated', { total })
   const showBubble = text !== '' || rest.length > 0
   return (
-    <div className={css.userRow} data-time-hover-root>
+    <div className={css.userRow} data-dsu-motion="node" data-time-hover-root>
       <div className={css.userStack}>
         <ImageGallery images={images} load={imageLoader} align="end" labels={imageLabels(t)} />
         {showBubble && (
