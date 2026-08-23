@@ -200,7 +200,7 @@ export function MotionSection({
           )}
         />
       </div>
-      <div className={`${css.row} ${css.rowDivider} ${enabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row} ${css.rowDivider}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('sidebarToggleTitle')}</div>
           <div className={css.desc}>{translator('sidebarToggleDesc')}</div>
@@ -211,12 +211,11 @@ export function MotionSection({
             className={css.checkbox}
             aria-label={translator('sidebarToggleTitle')}
             checked={sidebarEnabled}
-            disabled={!enabled}
             onChange={(event) => setSidebarMotionEnabled(event.target.checked)}
           />
         </label>
       </div>
-      <div className={`${css.row} ${enabled && sidebarEnabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row} ${sidebarEnabled ? '' : css.rowDisabled}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('sidebarStyleTitle')}</div>
           <div className={css.desc}>{translator('sidebarStyleDesc')}</div>
@@ -237,7 +236,7 @@ export function MotionSection({
             <button
               type="button"
               className={css.selector}
-              disabled={!enabled || !sidebarEnabled}
+              disabled={!sidebarEnabled}
               aria-haspopup="menu"
               aria-expanded={sidebarOpen}
               onClick={() => { setSidebarOpen(value => !value) }}
@@ -248,7 +247,7 @@ export function MotionSection({
           )}
         />
       </div>
-      <div className={`${css.row} ${css.rowDivider} ${enabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row} ${css.rowDivider}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('selectionToggleTitle')}</div>
           <div className={css.desc}>{translator('selectionToggleDesc')}</div>
@@ -259,12 +258,11 @@ export function MotionSection({
             className={css.checkbox}
             aria-label={translator('selectionToggleTitle')}
             checked={selectionEnabled}
-            disabled={!enabled}
             onChange={(event) => setSelectionMotionEnabled(event.target.checked)}
           />
         </label>
       </div>
-      <div className={`${css.row} ${enabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('newChatToggleTitle')}</div>
           <div className={css.desc}>{translator('newChatToggleDesc')}</div>
@@ -275,12 +273,11 @@ export function MotionSection({
             className={css.checkbox}
             aria-label={translator('newChatToggleTitle')}
             checked={newChatEnabled}
-            disabled={!enabled}
             onChange={(event) => setNewChatMotionEnabled(event.target.checked)}
           />
         </label>
       </div>
-      <div className={`${css.row} ${enabled && newChatEnabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row} ${newChatEnabled ? '' : css.rowDisabled}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('newChatStyleTitle')}</div>
           <div className={css.desc}>{translator('newChatStyleDesc')}</div>
@@ -301,7 +298,7 @@ export function MotionSection({
             <button
               type="button"
               className={css.selector}
-              disabled={!enabled || !newChatEnabled}
+              disabled={!newChatEnabled}
               aria-haspopup="menu"
               aria-expanded={newChatOpen}
               onClick={() => { setNewChatOpen(value => !value) }}
@@ -312,7 +309,7 @@ export function MotionSection({
           )}
         />
       </div>
-      <div className={`${css.row} ${css.rowDivider} ${enabled ? '' : css.rowDisabled}`}>
+      <div className={`${css.row} ${css.rowDivider}`}>
         <div className={css.rowText}>
           <div className={css.title}>{translator('settingsToggleTitle')}</div>
           <div className={css.desc}>{translator('settingsToggleDesc')}</div>
@@ -323,7 +320,6 @@ export function MotionSection({
             className={css.checkbox}
             aria-label={translator('settingsToggleTitle')}
             checked={settingsEnabled}
-            disabled={!enabled}
             onChange={(event) => setSettingsMotionEnabled(event.target.checked)}
           />
         </label>
