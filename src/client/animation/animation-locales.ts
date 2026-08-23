@@ -16,7 +16,7 @@ export type AnimationKey =
 
 /** Simplified Chinese copy. */
 export const zh: Record<AnimationKey, string> = {
-  nav: '动效',
+  nav: '✨ 动效',
   title: '动效',
   intro: '控制界面元素的过渡动画：打开设置、切换设置栏、切换会话、新消息出现等场景。关闭后界面与原生完全一致。',
   enabled: '启用动效',
@@ -39,7 +39,7 @@ export const zh: Record<AnimationKey, string> = {
 
 /** English copy. */
 export const en: Record<AnimationKey, string> = {
-  nav: 'Motion',
+  nav: '✨ Motion',
   title: 'Motion',
   intro: 'Controls the transition animation of interface elements: opening settings, switching settings sections, switching conversations, new messages, and so on. Turned off, the interface matches stock exactly.',
   enabled: 'Enable motion',
