@@ -162,7 +162,7 @@ export function AppearanceSection({
 
   if (state.status === 'unavailable') {
     return (
-      <div className={css.section} data-dsu-motion="fade-up">
+      <div className={css.section}>
         <h2 className={css.heading}>{translator('title')}</h2>
         <p className={css.intro}>{translator('unavailable')}</p>
         <p className={css.hint}>{translator('unavailableHint')}</p>
@@ -171,7 +171,7 @@ export function AppearanceSection({
   }
 
   return (
-    <div className={css.section} data-dsu-motion="fade-up">
+    <div className={css.section}>
       <h2 className={css.heading}>{translator('title')}</h2>
       <p className={css.intro}>{translator('intro')}</p>
 
