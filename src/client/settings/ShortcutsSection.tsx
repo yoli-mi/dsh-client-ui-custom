@@ -47,7 +47,7 @@ export function ShortcutsSection({
   const rows = ROWS.filter((row) => row.field !== 'usagePanel' || usageAvailable)
 
   return (
-    <div className={css.section}>
+    <div className={css.section} data-dsu-motion="fade-up">
       <h2 className={css.heading}>{t('title')}</h2>
       <p className={css.intro}>{t('intro')}</p>
       {state.status === 'unavailable' ? (
