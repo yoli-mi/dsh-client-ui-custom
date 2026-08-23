@@ -46,9 +46,6 @@ import { UI_CUSTOM_SETTINGS_NS, type ModelShortcut, type PluginFeature, type The
 import { usageOverlay } from './usage-overlay.ts'
 import { NS, en, zh } from './locales.ts'
 import { USAGE_NS, en as usageEn, zh as usageZh } from './usage/usage-locales.ts'
-import { ANIM_NS, en as animEn, zh as animZh } from './animation/animation-locales.ts'
-import { AnimationSection, type AnimationInjected } from './animation/AnimationSection.tsx'
-import type { AnimationStyle } from '../shared.ts'
 import { APPEARANCE_NS, en as appearanceEn, zh as appearanceZh } from './appearance/appearance-locales.ts'
 import { ShortcutsSettingsController, type ShortcutsSettingsInjected } from './settings/contract.ts'
 import { ShortcutsSection } from './settings/ShortcutsSection.tsx'
@@ -75,14 +72,6 @@ import { MARKDOWN_NS, zh as markdownZh, en as markdownEn } from './markdown/mark
 import { MarkdownRenderRow, type MarkdownRenderRowInjected } from './markdown/MarkdownRenderRow.tsx'
 import { UserMarkdownNodeView, type MarkdownRenderInjected } from './markdown/UserMarkdownNodeView.tsx'
 import './custom.module.css'
-import './animation/animation.module.css'
-
-/** Motion style tiers → the CSS parameters applied on `<html>` (动效 section). */
-const MOTION_STYLE: Record<AnimationStyle, { duration: string; ease: string; rise: string }> = {
-  soft: { duration: '260ms', ease: 'ease-out', rise: '4px' },
-  standard: { duration: '200ms', ease: 'cubic-bezier(0.2, 0, 0, 1)', rise: '6px' },
-  lively: { duration: '140ms', ease: 'cubic-bezier(0.34, 1.3, 0.64, 1)', rise: '8px' },
-}
 
 export type { CustomThemeConfig } from './config.ts'
 export type { ThemePreset } from './presets.ts'
@@ -562,80 +551,6 @@ export function apply(ctx: ClientContext, config?: Partial<CustomThemeConfig>): 
       locale: 'conversation',
       inject: (): MarkdownRenderInjected => ({ hooks: { mdRender: scope } }),
     }, UserMarkdownNodeView))
-  }
-
-  // ── 动效：settings section + 把开关/风格/预设应用到 html ─────────────────
-  // 样式无条件注入但全部以 html[data-dsu-anim] 为门控，只有本功能启用且
-  // 设置开关打开时界面元素才运动。风格与预设通过 --dsu-anim-* 变量和
-  // html[data-dsu-preset] 生效（见 animation.module.css）。
-  if (enabled('animation')) {
-    const animT = ctx.locale.bind(ANIM_NS)
-    ctx.effect(
-      () => ctx.locale.register(ANIM_NS, { zh: animZh, en: animEn }),
-      'ui-custom: animation dictionaries',
-    )
-    ctx.slots.inject('settings.section', () => ctx.slots.register({
-      name: 'settings.section',
-      id: 'ui-custom-animation',
-      order: 110,
-      label: () => animT('nav'),
-      locale: ANIM_NS,
-      inject: (): AnimationInjected => ({
-        hooks: { animation: scope },
-        setEnabled: (value) => { void scope.set('animationEnabled', value) },
-        setStyle: (value) => { void scope.set('animationStyle', value) },
-        setPreset: (value) => { void scope.set('animationPreset', value) },
-      }),
-    }, AnimationSection))
-
-    const applyMotion = (): void => {
-      const value = scope.getSnapshot().value
-      if (value === undefined) return
-      const root = document.documentElement
-      if (value.animationEnabled === false) delete root.dataset.dsuAnim
-      else root.dataset.dsuAnim = '1'
-      root.dataset.dsuPreset = value.animationPreset ?? 'balanced'
-      const style = value.animationStyle ?? 'standard'
-      root.style.setProperty('--dsu-anim-duration', MOTION_STYLE[style].duration)
-      root.style.setProperty('--dsu-anim-ease', MOTION_STYLE[style].ease)
-      root.style.setProperty('--dsu-anim-rise', MOTION_STYLE[style].rise)
-    }
-    applyMotion()
-    const offMotion = scope.subscribe(applyMotion)
-    ctx.effect(() => offMotion, 'ui-custom: motion settings sync')
-
-    // Settings pages re-render their content column in place (the container
-    // stays mounted, only its children are swapped), so a plain CSS entrance
-    // would play once and never again. Watch the shell's settings content
-    // column and re-apply the reveal class on every page switch — this covers
-    // the shell's own pages (model / plugins / agent presets) which have no
-    // motion attribute of their own.
-    let contentRevealAttached = false
-    const revealSettingsContent = (): void => {
-      const content = document.querySelector('[role="dialog"] > :nth-child(2) > :nth-child(2)')
-      if (!(content instanceof HTMLElement)) return
-      content.classList.remove('dsu-anim-reveal')
-      void content.offsetWidth
-      content.classList.add('dsu-anim-reveal')
-    }
-    const contentObserver = new MutationObserver(() => { revealSettingsContent() })
-    const settingsDialogObserver = new MutationObserver(() => {
-      const content = document.querySelector('[role="dialog"] > :nth-child(2) > :nth-child(2)')
-      if (content === null) {
-        contentRevealAttached = false
-        return
-      }
-      if (!contentRevealAttached) {
-        contentRevealAttached = true
-        contentObserver.observe(content, { childList: true, subtree: true })
-        revealSettingsContent()
-      }
-    })
-    settingsDialogObserver.observe(document.body, { childList: true, subtree: true })
-    ctx.effect(() => () => {
-      settingsDialogObserver.disconnect()
-      contentObserver.disconnect()
-    }, 'ui-custom: motion settings-dialog observer')
   }
   }
 
