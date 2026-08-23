@@ -32,7 +32,7 @@ export function UsageOverlay({ t, useSessions, useUsageVisible }: UsageOverlayPr
   const translator = t as TranslateNS<'usage'>
   return (
     <div className={css.backdrop} role="presentation" onClick={() => usageOverlay.close()}>
-      <div className={css.panel} role="dialog" aria-label={translator('title')} onClick={(event) => event.stopPropagation()}>
+      <div className={css.panel} data-dsu-motion="sheet" role="dialog" aria-label={translator('title')} onClick={(event) => event.stopPropagation()}>
         <header className={css.header}>
           <h2 className={css.title}>{translator('title')}</h2>
           <button type="button" className={css.close} aria-label={translator('close')} onClick={() => usageOverlay.close()}>
