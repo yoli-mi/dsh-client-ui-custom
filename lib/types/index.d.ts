@@ -5,7 +5,7 @@
  */
 import type { Context } from '@deepseek-ai/cordis';
 import type { ShortcutConfig } from './client/config.ts';
-import type { AnimationPreset, AnimationStyle, HistoryPosition, PluginFeature, ThemeSection } from './shared.ts';
+import type { HistoryPosition, PluginFeature, ThemeSection } from './shared.ts';
 /** Plugin config shape accepted at the loader layer (flat theme + nested shortcuts). */
 interface UiCustomConfig extends Partial<ThemeSection> {
     /**
@@ -15,12 +15,6 @@ interface UiCustomConfig extends Partial<ThemeSection> {
      * the listed features register on the web client.
      */
     features?: readonly PluginFeature[];
-    /** Whether interface motion is on (动效 section; absent = on). */
-    animationEnabled?: boolean;
-    /** Motion style tier: 'soft' | 'standard' | 'lively'. */
-    animationStyle?: AnimationStyle;
-    /** Motion preset: 'balanced' (full motion) | 'focus' (fade-only). */
-    animationPreset?: AnimationPreset;
     shortcuts?: Partial<ShortcutConfig>;
     /** History strip recent-turns limit (0 = show all). */
     historyLimit?: number;
