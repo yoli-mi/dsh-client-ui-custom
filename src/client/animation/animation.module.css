@@ -34,6 +34,14 @@ html[data-dsu-anim] [data-dsu-motion='fade-up'] {
   animation: dsu-fade-up var(--dsu-anim-duration, 200ms) var(--dsu-anim-ease, cubic-bezier(0.2, 0, 0, 1)) both;
 }
 
+/* The settings content column (model / plugins / agent presets — the shell's
+ * built-in pages, which have no motion attribute of their own): the motion
+ * feature re-applies this class whenever the page switches, so built-in pages
+ * get the same entrance as plugin-owned sections. */
+html[data-dsu-anim] .dsu-anim-reveal {
+  animation: dsu-fade-up var(--dsu-anim-duration, 200ms) var(--dsu-anim-ease, cubic-bezier(0.2, 0, 0, 1)) both;
+}
+
 /* The usage overlay reads as a material arriving (scale + fade together),
  * not a plain opacity fade. */
 html[data-dsu-anim] [data-dsu-motion='sheet'] {
@@ -96,6 +104,7 @@ html[data-dsu-anim] [data-dsu-motion='press']:active {
 html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='fade-up'],
 html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='strip'],
 html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='sheet'],
+html[data-dsu-anim][data-dsu-preset='focus'] .dsu-anim-reveal,
 html[data-dsu-anim][data-dsu-preset='focus'] [role='dialog'],
 html[data-dsu-anim][data-dsu-preset='focus'] [role='presentation'] {
   animation-name: dsu-node;
@@ -116,6 +125,7 @@ html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='press']:active {
   html[data-dsu-anim] [data-dsu-motion='fade-up'],
   html[data-dsu-anim] [data-dsu-motion='strip'],
   html[data-dsu-anim] [data-dsu-motion='sheet'],
+  html[data-dsu-anim] .dsu-anim-reveal,
   html[data-dsu-anim] [role='dialog'],
   html[data-dsu-anim] [role='presentation'] {
     animation-name: dsu-node;
