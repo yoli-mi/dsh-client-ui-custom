@@ -16,6 +16,17 @@
  *     displacement and scale, leaving a pure cross-fade.
  */
 
+/* The settings dialog (and any shell dialog) materializes on open instead of
+ * teleporting in; the usage overlay's own sheet rule below overrides this for
+ * its panel. The backdrop fades in with it. */
+html[data-dsu-anim] [role='dialog'] {
+  animation: dsu-dialog var(--dsu-anim-duration, 200ms) var(--dsu-anim-ease, cubic-bezier(0.2, 0, 0, 1)) both;
+}
+
+html[data-dsu-anim] [role='presentation'] {
+  animation: dsu-node 150ms ease-out both;
+}
+
 /* Settings sections (Appearance / Shortcuts / Usage / Marketplace / Motion):
  * the content fades in with a slight rise — a bridge for content that would
  * otherwise teleport into view when the page or tab opens. */
@@ -54,6 +65,13 @@ html[data-dsu-anim] [data-dsu-motion='press']:active {
   }
 }
 
+@keyframes dsu-dialog {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+}
+
 @keyframes dsu-sheet {
   from {
     opacity: 0;
@@ -77,7 +95,9 @@ html[data-dsu-anim] [data-dsu-motion='press']:active {
 /* The focus preset: keep the cross-fade only, drop every displacement/scale. */
 html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='fade-up'],
 html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='strip'],
-html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='sheet'] {
+html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='sheet'],
+html[data-dsu-anim][data-dsu-preset='focus'] [role='dialog'],
+html[data-dsu-anim][data-dsu-preset='focus'] [role='presentation'] {
   animation-name: dsu-node;
 }
 
@@ -87,13 +107,17 @@ html[data-dsu-anim][data-dsu-preset='focus'] [data-dsu-motion='press']:active {
 
 @media (prefers-reduced-motion: reduce) {
   /* Gentler, not zero: keep the shortest cross-fade, drop every displacement. */
-  html[data-dsu-anim] [data-dsu-motion] {
+  html[data-dsu-anim] [data-dsu-motion],
+  html[data-dsu-anim] [role='dialog'],
+  html[data-dsu-anim] [role='presentation'] {
     animation-duration: 100ms !important;
   }
 
   html[data-dsu-anim] [data-dsu-motion='fade-up'],
   html[data-dsu-anim] [data-dsu-motion='strip'],
-  html[data-dsu-anim] [data-dsu-motion='sheet'] {
+  html[data-dsu-anim] [data-dsu-motion='sheet'],
+  html[data-dsu-anim] [role='dialog'],
+  html[data-dsu-anim] [role='presentation'] {
     animation-name: dsu-node;
   }
 
