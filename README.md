@@ -194,6 +194,32 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 
 ---
 
+### 动效（设置 → 动效）
+
+新增的设置页，为 Web 客户端的各个界面提供 Apple 风格的入场动效。每一类动效都有
+**独立的开关与样式选择**，互不牵连；也可一键应用整套预设。开关与样式存于
+`ui-custom` settings 命名空间，修改实时生效。
+
+**对话入场动效** —— 载入或切换对话时，消息逐行错峰出现，而不是瞬间跳出；每次
+切换都会重放动画。6 种样式：淡入上浮 / 轻柔淡入 / 上浮放大 / 右侧滑入 / 模糊显影 / 轻盈缩放。
+
+**侧边栏动效** —— 打开 Web 时侧边栏会话树逐项层叠出现，展开工作区时行项浮现，
+当前会话行描出**常驻的选中框**。4 种样式：左侧滑入 / 轻柔淡入 / 纵向展开 / 自上而下。
+
+**新建对话动效** —— 新建对话时，欢迎界面与输入区柔和入场。4 种大表面样式：
+轻柔显影 / 轻柔淡入 / 柔和绽放 / 柔和缩放。
+
+**设置界面动效** —— 打开设置时面板从左下角向中间扩张、关闭反向收缩；切换左侧
+标签时高亮与页面内容淡入。可单独关闭，关闭后设置面板立即出现/消失。
+
+**一键预设** —— 流畅 / 优雅 / 极简三套方案，把整套开关与样式一次应用到位，无需
+逐项调试；应用后仍可自由微调。
+
+所有动效都尊重系统「减弱动态效果」（`prefers-reduced-motion`），开启时自动降级为
+短暂淡入；侧边栏选中框在关闭时完全移除。
+
+---
+
 ### 通用设置项的改动
 
 在「设置 → 通用设置」里新增内容：
@@ -476,6 +502,42 @@ a session ranking. The session list rows already carry the host-computed
 projection baseline, so no extra RPCs are needed.
 
 The panel can be popped up from any screen via a shortcut.
+
+---
+
+### Motion (Settings → Motion)
+
+A new settings page that brings Apple-style entrance motion to the web client's
+surfaces. Every kind of motion has its **own toggle and style picker** — they do
+not depend on each other — and the whole combination can be applied at once
+through one-click presets. Toggles and styles live in the `ui-custom` settings
+namespace and take effect immediately.
+
+**Conversation entrance motion** — messages cascade in row by row when a
+conversation loads or switches, instead of popping in at once; the animation
+replays on every visit. Six styles: fade-up / gentle fade / rise & scale /
+slide-in / blur-in / gentle scale.
+
+**Sidebar motion** — the session tree cascades in on web load, workspace rows
+fade in when their group expands, and the active conversation row traces a
+**persistent selection box**. Four styles: slide-in from left / gentle fade /
+expand / drop-in.
+
+**New-conversation motion** — a brand-new conversation's welcome dialog and
+composer arrive softly. Four large-surface styles: soft reveal / gentle fade /
+gentle bloom / soft zoom.
+
+**Settings-shell motion** — the settings dialog expands from the lower-left and
+contracts on close; nav highlight and page content fade in on switch. Can be
+turned off on its own, in which case the panel appears and disappears instantly.
+
+**One-click presets** — Fluid / Elegant / Minimal apply the entire combination
+of toggles and styles at once, no per-option tuning needed; everything stays
+editable afterwards.
+
+All motion respects the system "reduce motion" preference
+(`prefers-reduced-motion`), degrading to a short cross-fade when enabled; the
+sidebar selection box is fully removed while off.
 
 ---
 
