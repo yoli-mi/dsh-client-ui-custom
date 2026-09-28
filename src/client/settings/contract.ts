@@ -11,7 +11,8 @@
  *   unset too); the scope's publish refreshes the projection.
  */
 import type { ShortcutConfig } from '../config.ts'
-import { createSnapshotStore, type SettingsScope, type SnapshotStore } from '@deepseek-ai/dsh-client-runtime/client'
+import { createSnapshotStore, type SnapshotStore } from '../snapshot-store.ts'
+import type { SettingsScope } from '@deepseek-ai/dsh-client-runtime/client'
 import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ShortcutAction } from '../shortcuts.ts'
 import type { ModelShortcut, ShortcutsSection } from '../../shared.ts'

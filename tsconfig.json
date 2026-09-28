@@ -1,48 +1,27 @@
 {
-  "extends": "../../../tsconfig.base.client.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "rootDir": "src",
-    "outDir": "lib/types"
+    "outDir": "lib/types",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true
   },
   "include": [
     "src"
-  ],
-  "references": [
-    {
-      "path": "../../../vendor/cordis"
-    },
-    {
-      "path": "../runtime"
-    },
-    {
-      "path": "../locale"
-    },
-    {
-      "path": "../ui-settings"
-    },
-    {
-      "path": "../ui-layout"
-    },
-    {
-      "path": "../ui-slots"
-    },
-    {
-      "path": "../ui-primitives"
-    },
-    {
-      "path": "../ui-conversation"
-    },
-    {
-      "path": "../web-react"
-    },
-    {
-      "path": "../../api/remotes/tsconfig.client.json"
-    },
-    {
-      "path": "../../settings/settings"
-    },
-    {
-      "path": "../../runtime-diagnostics/invariants"
-    }
   ]
 }

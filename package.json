@@ -1,7 +1,7 @@
 {
   "name": "@ha-na-bi/dsh-client-ui-custom",
   "description": "客制化DSH（Custom DSH）: web-surface theming (wallpaper, frosted glass, accent, translucent surfaces), configurable keyboard shortcuts (new conversation / model / thinking effort / composer gestures / usage panel), an app-usage panel, and entrance motion for conversations, the sidebar, and new conversations. Zero shell edits.",
-  "version": "0.1.0-rc.6",
+  "version": "0.1.0-rc.7",
   "publishConfig": {
     "access": "public"
   },
@@ -33,31 +33,32 @@
     },
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-runtime",
         "@deepseek-ai/dsh-client-ui-theme"
       ],
       "platform": "web"
     }
   },
   "scripts": {
+    "build": "node scripts/build.mjs",
     "bundle": "tsdown",
-    "watch": "tsdown --watch"
+    "watch": "tsdown --watch",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
     "@deepseek-ai/dsh-api-remotes": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-client-ui-attachment": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-client-ui-conversation": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-client-ui-primitives": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-ui-settings": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-ui-slots": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-web-react": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-settings": "^0.1.0-rc.5",
-    "@deepseek-ai/schemastery": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-primitives": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-attachment": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-conversation": "^0.1.0-rc.5",
+    "@deepseek-ai/schemastery": "~3.18.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -66,16 +67,24 @@
     "@deepseek-ai/dsh-api-remotes": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-client-ui-attachment": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-client-ui-conversation": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-client-ui-primitives": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-ui-settings": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-ui-slots": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-web-react": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-settings": "^0.1.0-rc.5",
-    "@deepseek-ai/schemastery": "^0.1.0-rc.5",
+    "@deepseek-ai/schemastery": "~3.18.4",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
+    "esbuild": "^0.28.0",
+    "jsdom": "^30.1.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tsdown": "^0.12.0",
+    "typescript": "~5.9.0",
+    "vitest": "^3.2.0"
   },
   "files": [
     "lib/index.js",

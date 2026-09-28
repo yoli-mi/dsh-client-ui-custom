@@ -7,7 +7,8 @@
  * touching the scope — the user decides after seeing the effect; cancel
  * re-applies the saved values.
  */
-import { type SettingsScope, type SnapshotStore } from '@deepseek-ai/dsh-client-runtime/client';
+import { type SnapshotStore } from '../snapshot-store.ts';
+import type { SettingsScope } from '@deepseek-ai/dsh-client-runtime/client';
 import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots';
 import type { CustomThemeConfig } from '../config.ts';
 import type { ThemeSection } from '../../shared.ts';

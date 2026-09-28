@@ -1,0 +1,3 @@
+# pnpm v12 build-script permissions (migrated from package.json#pnpm)
+onlyBuiltDependencies:
+  - esbuild

@@ -22,5 +22,5 @@ export interface MarkdownRenderInjected {
 /** Full props of the shadowed user/steering renderer. */
 export type UserMarkdownNodeProps = PropsRuntime<'conversation.chat.node', 'user' | 'steering'> & PropsLocale<'conversation'> & InjectFace<MarkdownRenderInjected>;
 /** User and admitted-steering keyed Chat renderer (shadow, priority -1). */
-export declare const UserMarkdownNodeView: import("react").MemoExoticComponent<({ node, loadImage, t, useMdRender, }: UserMarkdownNodeProps) => import("react").JSX.Element>;
+export declare const UserMarkdownNodeView: import("react").NamedExoticComponent<UserMarkdownNodeProps>;
 //# sourceMappingURL=UserMarkdownNodeView.d.ts.map

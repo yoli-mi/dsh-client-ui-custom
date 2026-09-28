@@ -8,7 +8,7 @@
  * every source fails, the failure is recorded per source so the tab can show
  * why instead of rendering a silent empty market.
  */
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-runtime/client'
+import { createSnapshotStore, type SnapshotStore } from '../snapshot-store.ts'
 import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
 import {
   BUNDLED_MARKETPLACE, discoverGitHubPlugins, enrichEntryMetadata, fetchMarketplaceManifest, fetchRepoEntry,

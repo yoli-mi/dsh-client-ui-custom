@@ -251,9 +251,14 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
 
 ### 安装
 
-1. 确保构建会包含该包（`pnpm run build:lib:client`）。
-2. 在 Web profile 的补丁层加入浏览器 roster 行 ——
-   `~/.dsh/profiles/web/cordis.patch.yml`（或你 profile 中对应的 `dsh.client` roster）：
+方式一（推荐）：通过 DSH 插件中心或命令行安装：
+
+```bash
+dsh plugin --profile web add git+https://github.com/yoli-mi/dsh-client-ui-custom.git
+```
+
+方式二：手动在 Web profile 的补丁层加入浏览器 roster 行 ——
+`~/.dsh/profiles/web/cordis.patch.yml`（或你 profile 中对应的 `dsh.client` roster）：
 
 ```yaml
 - id: ui-custom
@@ -264,11 +269,26 @@ RPC，输入区的模型显示会自动同步；被寻址的子代理会话会�
     wallpaperBlur: 14
 ```
 
-3. 重启 `dsh web`。
+然后重启 `dsh web`。产物（`lib/`）随仓库分发，安装时无需构建。
 
-自行构建时需注意：设置页要能加载，`ui-custom` 命名空间必须在 Web 客户端的
-设置暴露白名单里（`packages/host/apiproxy/src/api-proxy.ts` 的
-`WEB_SETTINGS_NAMESPACES`）——本检出已加入。
+> 若安装报 `pnpm: Command failed ... git ls-remote`，多为网络到 GitHub 不稳定，
+> 重试或配置代理即可；若提示需要 `allowBuilds`，按提示把对应键加入
+> `~/.dsh/profiles/web/pnpm-workspace.yaml` 后重跑安装命令。
+
+---
+
+### 开发（自行构建）
+
+```bash
+pnpm install
+pnpm build    # tsc 刷新 lib/types 声明 + tsdown 打包 lib/ 三个产物
+pnpm test     # vitest：149 项测试（含 DSH 0.1.2 模块表下的加载回归）
+```
+
+构建已自包含（`tsdown.config.ts` 不再引用仓库外文件）。注意：`tsc` 全量类型
+检查需要与插件目标时代匹配的 DSH profile 工作区——公共 npm 上的
+`@deepseek-ai/*` 版本与 rc.5 时代有偏差，`pnpm build` 允许在该偏差下继续产出
+（rolldown 转译不做类型检查），测试与产物回归是主要验收面。
 
 ---
 
@@ -303,6 +323,10 @@ packages/client/ui-custom/
 
 ### 注意事项
 
+- **DSH 0.1.2 兼容**（v0.1.0-rc.7 起）：客户端 bundle 不再
+  `require("@deepseek-ai/dsh-client-runtime/client")` —— DSH 0.1.2 已将该包
+  移出客户端模块表，旧版会在模块加载阶段整体失败。插件内置了等价的
+  snapshot store（`src/client/snapshot-store.ts`），行为不变。
 - profile 的 `cordis.patch.yml` 改动需要重启 `dsh web` 才生效。
 - 壁纸必须能被浏览器访问（例如放在 Web 服务静态根目录下，或外部 URL）。
 - 插件自带的设置页（外观、快捷键、用量统计等）修改**实时生效**、无需重启；
@@ -576,10 +600,15 @@ providing a catalog of **third-party** DSH plugins.
 
 ### Install
 
-1. Make sure the package is included in your build (`pnpm run build:lib:client`).
-2. Add a browser-roster row to your web profile's patch layer —
-   `~/.dsh/profiles/web/cordis.patch.yml` (or the corresponding `dsh.client`
-   roster in your profile):
+Option A (recommended): via the DSH plugin hub or the CLI:
+
+```bash
+dsh plugin --profile web add git+https://github.com/yoli-mi/dsh-client-ui-custom.git
+```
+
+Option B: manually add a browser-roster row to your web profile's patch layer —
+`~/.dsh/profiles/web/cordis.patch.yml` (or the corresponding `dsh.client`
+roster in your profile):
 
 ```yaml
 - id: ui-custom
@@ -590,12 +619,30 @@ providing a catalog of **third-party** DSH plugins.
     wallpaperBlur: 14
 ```
 
-3. Restart `dsh web`.
+Then restart `dsh web`. The artifacts (`lib/`) ship in the repository, so
+installs never need to build.
 
-Self-builders: for the settings pages to load, the `ui-custom` namespace must
-be in the web client's settings exposure allowlist
-(`WEB_SETTINGS_NAMESPACES` in `packages/host/apiproxy/src/api-proxy.ts`) — it
-is already in this checkout.
+> If the install fails with `pnpm: Command failed ... git ls-remote`, that is
+> usually flaky connectivity to GitHub — retry or configure a proxy. If it
+> asks for `allowBuilds`, add the key it prints to
+> `~/.dsh/profiles/web/pnpm-workspace.yaml` and re-run the install command.
+
+---
+
+### Development (building yourself)
+
+```bash
+pnpm install
+pnpm build    # tsc refreshes lib/types declarations + tsdown bundles lib/
+pnpm test     # vitest: 149 tests (incl. the DSH 0.1.2 module-table load regression)
+```
+
+The build is self-contained (`tsdown.config.ts` no longer imports anything
+outside the repository). Note that a fully clean `tsc` typecheck needs a
+DSH-profile workspace matching the plugin's target era — the public-registry
+`@deepseek-ai/*` versions drift from the rc.5 era, so `pnpm build` deliberately
+tolerates those skew errors (rolldown transpiles without typechecking); the
+test suite and the bundle regression are the acceptance gates.
 
 ---
 
@@ -632,6 +679,11 @@ packages/client/ui-custom/
 
 ### Notes
 
+- **DSH 0.1.2 compatibility** (since v0.1.0-rc.7): the client bundle no longer
+  `require`s `@deepseek-ai/dsh-client-runtime/client` — DSH 0.1.2 dropped that
+  package from the client module table and the old bundle died at module-load
+  time. An equivalent snapshot store is vendored
+  (`src/client/snapshot-store.ts`); behavior is unchanged.
 - Changes to a profile's `cordis.patch.yml` only take effect after a
   `dsh web` restart.
 - The wallpaper must be reachable by the browser (e.g. placed under the web

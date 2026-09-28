@@ -10,3 +10,6 @@ Thumbs.db
 # Local env files
 .env
 .env.local
+
+# Local install state (deps resolve from the DSH host profile / registry)
+node_modules/.pnpm-store/
